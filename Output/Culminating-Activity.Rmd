@@ -1,0 +1,147 @@
+---
+title: "Culminating Activity"
+author: "Tristan, Kiarra, Joshua, Joselito, Rick"
+date: ""
+output: pdf_document
+---
+
+```{r, echo=FALSE, include=FALSE}
+"
+Ebao, Miguel Tristan Sebastian Y.
+Estrada, Kiarra Ezrha P.
+Juinio, Joshua Jacques Anthony L.
+Yap, Joselito Jr. L.
+Yuliongsiu, Rick Bryson N.
+"
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Library
+library(RKaggle)
+library(dplyr)
+library(ggplot2)
+library(car)
+library(lmtest)
+library(olsrr)
+```
+# Abstract
+Provide a concise summary of the study including purpose, methods, results, and conclusions (150–250 words).
+
+# Chapter 1: Introduction
+
+## Background of the Study
+Insert text...
+
+## Statement of the Problem
+Clearly state the research questions.
+
+1. What is the...?
+
+## Objectives of the Study
+### General Objective
+- To investigate...?
+
+### Specific Objectives
+- To determine...?
+- To analyze...?
+
+
+## Hypotheses (if applicable)
+- **H0**: There is no significant relationship between...
+- **H1**: There is a significant relationship between...
+
+## Significance of the Study
+Explain who benefits and how.
+
+## Scope and Limitations
+Define the boundaries of the study.
+
+
+# Chapter 2: Review of Related Literature
+
+## Related Studies
+Summarize previous research.
+
+## Related Literature
+Discuss theories and concepts.
+
+## Conceptual Framework
+(Insert diagram if needed)
+
+```{r conceptual-framework, echo=FALSE}
+# Example placeholder
+# plot(1:10, 1:10, main="Conceptual Framework (Replace)")
+```
+
+# Chapter 3: Methodology
+
+## Research Design
+
+Describe the design (e.g., descriptive, experimental).
+
+## Data Collection
+
+The dataset utilized in this study was collected from Kaggle, https://www.kaggle.com/code/yonatanrabinovich/video-games-sales-regression-techniques/input.
+
+```{r}
+# Load dataset
+data <- read.csv("./Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
+head(data)
+```
+
+## Variables Description
+
+Explain dependent and independent variables.
+
+## Data Analysis Techniques
+
+- Descriptive Statistics
+- Inferential Statistics
+- Machine Learning Models (if applicable)
+
+# Chapter 4: Results and Discussion
+
+## Descriptive Statistics
+
+```{r, echo=FALSE}
+#summary(data)
+```
+
+## Visualization
+```{r}
+library(ggplot2)
+#ggplot(data, aes(x=Variable1, y=Variable2)) +
+#  geom_point() +
+#  theme_minimal()
+```
+
+## Model
+```{r}
+#model <- lm(total_sales~., numeric_data)
+#summary(model)
+```
+
+## Interpretation
+
+Discuss findings in paragraph form.
+
+# Chapter 5: Conclusion and Recommendations
+
+## Conclusion
+
+Summarize key findings.
+
+## **Recommendations**
+
+Provide practical suggestions
+
+# References
+
+Rabinovich, Y. (2021). *Video games sales regression techniques.* Kaggle. https://www.kaggle.com/code/yonatanrabinovich/video-games-sales-regression-techniques/notebook
+
+The Investopedia Team. (2025). *Predictive Modeling: Techniques, Uses, and Key Takeaways.* https://www.investopedia.com/terms/p/predictive-modeling.asp
+
+# Appendices
+## Appendix A: Code
