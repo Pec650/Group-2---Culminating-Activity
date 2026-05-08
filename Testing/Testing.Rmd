@@ -1,0 +1,195 @@
+---
+title: "Testing"
+author: "Group 2"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(RKaggle)
+library(dplyr)
+library(ggplot2)
+library(car)
+library(lmtest)
+library(olsrr)
+
+library(DT)
+library(glmnet)
+library(tibble)
+library(forcats)
+library(purrr)
+library(readr)
+library(stringr)
+```
+
+```{r, warning=FALSE}
+data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
+
+data_row_count <- nrow(data)
+```
+
+#### Number of rows = **`r data_row_count`**
+
+```{r, warning=FALSE}
+# Show data
+#head(data)
+datatable(data[1:6,], 
+          options = list(scrollX = TRUE, pageLength = 6),
+          rownames = FALSE)
+
+
+# Data cleaning
+data <- na.omit(data)
+
+na_row_count = data_row_count - nrow(data)
+```
+
+#### Number of rows with missing values = **`r na_row_count`**
+#### New number of rows = **`r nrow(data)`**
+
+```{r, warning=FALSE}
+# Show data after dropping all NA values
+#head(data)
+datatable(data[1:6,], 
+          options = list(scrollX = TRUE, pageLength = 6),
+          rownames = FALSE)
+
+str(data)
+
+# Drop all sales except global
+data_df <- cbind(data[,-c(6:10)],data$Global_Sales)
+data_df$Year_of_Release <- 2016 - data_df$Year_of_Release
+names(data_df)[3] <- "Game_Age"
+names(data_df)[12] <- "Global_Sales"
+
+str(data_df)
+
+summary(data_df)
+```
+
+## REGRESSION MODEL
+
+```{r, warning=FALSE}
+set.seed(12)
+
+reg_model <- data_df
+str(reg_model)
+
+# 70 : 30 RATIO
+train.size <- floor(0.7*nrow(reg_model))
+train.index <- sample(1:nrow(reg_model),train.size, replace = F)
+train.set <- reg_model[train.index,]
+test.set <- reg_model[-train.index,]
+```
+
+```{r, warning=FALSE}
+model <- lm(Global_Sales ~ Critic_Score + Critic_Count + User_Count, data = train.set)
+summary(model)
+
+model$coefficients
+
+# Diagnostic Checking
+par(mfrow = c(2, 2))
+plot(model)
+
+# Outliers, Leverage and Influential Points
+which(hatvalues(model) > 0.08)
+plot(hatvalues(model),type="h"); abline(h=0.08)
+which(cooks.distance(model)>1)
+plot(cooks.distance(model),type="h"); abline(h=1)
+```
+
+```{r, warning=FALSE}
+model <- lm(formula = Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = train.set)
+summary(model)
+
+model$coefficients
+
+# Diagnostic Checking
+par(mfrow = c(2, 2))
+plot(model)
+
+# Outliers, Leverage and Influential Points
+which(hatvalues(model) > 0.08)
+plot(hatvalues(model),type="h"); abline(h=0.08)
+which(cooks.distance(model)>1)
+plot(cooks.distance(model),type="h"); abline(h=1)
+```
+
+## VARIABLE SELECTION
+
+```{r, warning=FALSE}
+k<-ols_step_best_subset(model)
+k
+```
+
+##### **Model 7** is the best model because it has the highest R-Square, Adj. R-Square, and Pred R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
+
+## EVALUATION OF REGRESSION MODEL
+
+### I. RIDGE REGRESSION
+
+```{r, warning=FALSE}
+X_full <- model.matrix(Global_Sales ~ Platform + Game_Age + Genre + 
+                         Critic_Score + Critic_Count + User_Count + Rating, 
+                       data = reg_model)[, -1]
+y_full <- reg_model$Global_Sales
+
+X_train <- X_full[train.index, ]
+X_test  <- X_full[-train.index, ]
+y_train <- y_full[train.index]
+y_test  <- y_full[-train.index]
+```
+
+```{r, warning=FALSE}
+ridge_cv <- cv.glmnet(
+  X_train, y_train,
+  alpha = 0
+)
+
+#Predictions
+ridge_pred_train <- predict(ridge_cv, X_train, s = "lambda.min")
+ridge_pred_test <- predict(ridge_cv, X_test, s = "lambda.min")
+
+# RMSE
+ridge_rmse_train <- sqrt(mean((y_train - ridge_pred_train)^2))
+ridge_rmse_test <- sqrt(mean((y_test - ridge_pred_test)^2))
+
+ridge_rmse_train
+ridge_rmse_test
+```
+
+### II. LASSO REGRESSION
+
+```{r, warning=FALSE}
+lasso_cv <- cv.glmnet(
+  X_train, y_train,
+  alpha = 1
+)
+
+#Predictions
+lasso_pred_train <- predict(lasso_cv, X_train, s = "lambda.min")
+lasso_pred_test <- predict(lasso_cv, X_test, s = "lambda.min")
+
+# RMSE
+lasso_rmse_train <- sqrt(mean((y_train - lasso_pred_train)^2))
+lasso_rmse_test <- sqrt(mean((y_test - lasso_pred_test)^2))
+
+lasso_rmse_train
+lasso_rmse_test
+```
+
+### III. COMPARISON TABLE
+
+```{r, warning=FALSE}
+rmse_results <- data.frame(
+  Model = c("Ridge", "LASSO"),
+  Train_RMSE = c(ridge_rmse_train, lasso_rmse_train),
+  Test_RMSE = c(ridge_rmse_test, lasso_rmse_test)
+)
+rmse_results
+```
+
