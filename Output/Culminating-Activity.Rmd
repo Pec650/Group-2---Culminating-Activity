@@ -32,25 +32,32 @@ Provide a concise summary of the study including purpose, methods, results, and 
 # Chapter 1: Introduction
 
 ## Background of the Study
-Insert text...
+
+&nbsp;&nbsp;&nbsp;&nbsp;Global sales prediction plays an important role in helping businesses make informed decisions related to marketing strategies, inventory management, budgeting, and future business planning. Many organizations rely on predictive models such as Multiple Linear Regression to analyze trends and forecast sales performance using historical and market-related data. However, one of the common challenges in predictive analytics is the presence of missing data within datasets. Missing values may occur due to incomplete records, human error, system failures, or inconsistent data collection processes. When these missing values are not properly handled, they can negatively affect the accuracy, consistency, and reliability of sales prediction models, leading to poor decision-making and inaccurate forecasts.
+
+&nbsp;&nbsp;&nbsp;&nbsp;This research focuses on examining the effect of missing value handling on improving global sales prediction using Multiple Linear Regression. Specifically, it aims to understand why missing data reduces model performance and how different data cleaning techniques can enhance predictive accuracy. It also highlights the significance of proper data preparation in machine learning and statistical analysis. By identifying effective preprocessing methods, the research can help businesses, researchers, and data analysts develop more reliable prediction models and improve the quality of data-driven decisions in global sales forecasting.
 
 ## Statement of the Problem
-Clearly state the research questions.
 
-1. What is the...?
+1. What is the effect of missing value handling on improving global sales prediction using Multiple Linear Regression?
+
+2. Why does missing data reduce the accuracy and reliability of sales prediction models?
+
+3. How does applying data cleaning techniques improve the performance of the Multiple Linear Regression model?
 
 ## Objectives of the Study
+
 ### General Objective
-- To investigate...?
+
+- To investigate the effect of missing value handling on improving global sales prediction using Multiple Linear Regression.
 
 ### Specific Objectives
-- To determine...?
-- To analyze...?
 
+- To determine how missing data affects the accuracy and reliability of sales prediction models.
 
-## Hypotheses (if applicable)
-- **H0**: There is no significant relationship between...
-- **H1**: There is a significant relationship between...
+- To implement and assess data imputation strategies to prevent the loss of valuable data caused by deleting incomplete rows.
+
+- To compare the performance metrics between models using data with deleted missing rows and models using imputed data.
 
 ## Significance of the Study
 Explain who benefits and how.
@@ -87,7 +94,7 @@ The dataset utilized in this study was collected from Kaggle, https://www.kaggle
 
 ```{r}
 # Load dataset
-data <- read.csv("./Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
+data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
 head(data)
 ```
 
