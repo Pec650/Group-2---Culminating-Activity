@@ -8,14 +8,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-
 library(RKaggle)
 library(dplyr)
 library(ggplot2)
 library(car)
 library(lmtest)
 library(olsrr)
-
 library(DT)
 library(glmnet)
 library(tibble)
@@ -24,11 +22,16 @@ library(purrr)
 library(readr)
 library(stringr)
 library(corrplot)
+library(mice)
+library(tidyr)
+library(caret)
 ```
 
 ## **DATA COLLECTION**
 
 ```{r, warning=FALSE}
+set.seed(12)
+
 data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
 
 data_row_count <- nrow(data)
@@ -68,6 +71,9 @@ data_df$Year_of_Release <- 2016 - data_df$Year_of_Release
 names(data_df)[3] <- "Game_Age"
 names(data_df)[12] <- "Global_Sales"
 
+#name column is an id column we can remove for good (only used for games Top ten sales)
+data_df <- data_df[,-1]
+
 str(data_df)
 
 summary(data_df)
@@ -76,8 +82,6 @@ summary(data_df)
 ## **REGRESSION MODEL**
 
 ```{r, warning=FALSE}
-set.seed(12)
-
 reg_model <- data_df
 str(reg_model)
 
@@ -230,7 +234,7 @@ p_value <- dw_test$p.value
 
 `r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **there is no auto-correlation.**" } else { "We reject the null hypothesis, therefore, **there exists auto-correlation.**" }`
 
-## DATA Transformation
+## **DATA TRANSFORMATION (Logarithmic Model)**
 
 Since the model is not normally distributed based on the results of the Kolmogorov-Smirnov test, we perform a data transformation using the **Logarithmic Model**.
 
@@ -371,4 +375,16 @@ k<-ols_step_best_subset(model_log)
 k
 ```
 
-##### **Model 6** is the best model because despite it having a lesser R-Squared than Model 7, it still has the highest Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
+##### **Model 6** is the best model because despite it having a lesser R-Squared than Model 7, it still has the highest Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC.
+
+## 3-FOLD CROSS VALIDATION
+
+```{r, warning=FALSE}
+# Define training control
+train.control <- trainControl(method = "cv", number = 3)
+
+model <- train(log(Global_Sales) ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = data_df, method = "lm", trControl = train.control)
+
+# Summarize the results
+print(model)
+```
