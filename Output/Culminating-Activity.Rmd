@@ -60,7 +60,13 @@ Provide a concise summary of the study including purpose, methods, results, and 
 - To compare the performance metrics between models using data with deleted missing rows and models using imputed data.
 
 ## Significance of the Study
-Explain who benefits and how.
+&nbsp;&nbsp;&nbsp;&nbsp;This study mainly benefits stakeholders who utilize predictive analysis to guide data-driven decision making. By emphasizing the influence of missing data found within datasets used, as well as determining the impact it has to the model’s efficacy, the following groups stand to gain:
+
+- Business Organizations: Companies heavily rely on these predictive models to analyze trends and forecast sales performance. By proving how the influence of missing data skews the results of analysis, the marketing and sales departments of these organizations can refine and regulate their data collection procedures. These practices upholding data integrity can ensure quality regarding sales forecasting and, in turn, aid in their future executive business decisions and resource allocation.
+
+- Data Analysts: This paper can serve as a benchmark to creating and optimizing new prediction models, especially addressing the challenges posed by missing values in their datasets. Analysts can utilize these findings to theorize more of these sophisticated strategies to create more robust, reliable, and statistically accurate analytical tools.
+
+- Researchers: Practitioners and professionals under the field of data science and econometrics can refer to this paper. It offers a framework for future studies to compare different machine learning algorithms or imputation techniques surrounding the Multiple Linear Regression model used here.
 
 ## Scope and Limitations
 
