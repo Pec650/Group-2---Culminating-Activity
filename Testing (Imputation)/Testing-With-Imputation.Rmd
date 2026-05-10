@@ -59,7 +59,7 @@ str(data_df)
 summary(data_df)
 ```
 
-## **DATA IMPUTATION**
+## **DATA IMPUTATION (Bayesian Linear Regression)**
 
 ```{r, warning=FALSE}
 data_subset <- data_df[, c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Count", "Rating")]
@@ -68,11 +68,11 @@ data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
 
+# Bayesian Linear Regression
 meth <- make.method(data_subset)
+imp_data <- mice(data_subset, method = meth, m = 5, seed = 123, printFlag = FALSE)
 
-imp_norm <- mice(data_subset, method = "pmm", m = 1, seed = 123, printFlag = FALSE)
-
-completed_data <- complete(imp_norm, 1)
+completed_data <- complete(imp_data, 1)
 
 datatable(completed_data, 
           options = list(scrollX = TRUE, pageLength = 6),
@@ -386,4 +386,4 @@ k<-ols_step_best_subset(model_log)
 k
 ```
 
-##### **Model 7** is the best model because it has the highest R-Squared and Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
+##### **Model 7** is the best model because it has the highest R-Squared and Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC.
