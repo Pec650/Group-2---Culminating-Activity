@@ -63,16 +63,39 @@ Provide a concise summary of the study including purpose, methods, results, and 
 Explain who benefits and how.
 
 ## Scope and Limitations
-Define the boundaries of the study.
+
+&nbsp;&nbsp;&nbsp;&nbsp;This research focuses on predicting global video game sales by comparing two data-handling methods which are deleting missing rows and using the Bayesian Linear Regression imputation. The analysis is specifically performed using Multiple Linear Regression within the R programming environment. The primary goal is to determine which data-handling technique leads to a more accurate and reliable prediction model.
 
 
 # Chapter 2: Review of Related Literature
 
 ## Related Studies
-Summarize previous research.
+
+&nbsp;&nbsp;&nbsp;&nbsp;In a study focused specifically on video game sales data from Kaggle, Affan et al. (2024) developed a machine learning-based sales prediction model using several regression algorithms. Their model made use of regression algorithms, including Linear Regression, Ridge Regression, and Gradient Boosting Regressor, to forecast worldwide video game sales based on variables such as genre, platform, publishers, critic reviews, and user ratings. Their work demonstrates that the same video game sales dataset used in this study has been applied in prior research, validating its academic relevance.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Separately, a study on predicting video game sales using supervised learning from the same Kaggle dataset highlighted the impact of missing data on model outcomes. After downloading the dataset, the researcher dropped rows with empty values or filled in missing values to standardize the columns before applying regression modeling, noting that the dataset contained missing score fields for some video games, which posed challenges to prediction reliability. This finding directly parallels the core concern of this research, that unhandled missing data undermines prediction accuracy. Du (2025).
+
+&nbsp;&nbsp;&nbsp;&nbsp;Ahmad et al. (2024) conducted a comprehensive review of machine learning applications specifically for missing value imputation. Their analysis sought to enhance researchers' understanding of MVI methods and facilitate the development of robust interventions in data preprocessing for data analytics, elucidating the strengths and limitations of different ML algorithms in imputing missing values across different types of data. This reinforces the idea that the choice of imputation technique has measurable consequences for downstream model performance.
 
 ## Related Literature
-Discuss theories and concepts.
+
+### Multiple Linear Regression
+
+&nbsp;&nbsp;&nbsp;&nbsp;Multiple Linear Regression is a fundamental statistical technique used to model the relationship between one dependent variable and two or more independent variables. According to Fiveable (2024), the goal of MLR is to find the line of best fit that minimizes the sum of squared residuals, where the model takes the form $Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \dots + \beta_kX_k + \epsilon$, with each slope coefficient representing the change in the dependent variable for a one-unit change in the corresponding independent variable, holding all others constant.
+
+&nbsp;&nbsp;&nbsp;&nbsp;The reliability of MLR estimates depends on a set of classical assumptions known as the Gauss-Markov conditions. As explained by Jim (n.d.), the Gauss-Markov theorem states that if a linear regression model satisfies the classical assumptions, then Ordinary Least Squares (OLS) regression produces unbiased estimates that have the smallest variance of all possible linear estimators. When these assumptions are violated, for instance, due to missing data introducing bias or inconsistency into the dataset, the estimates produced by the model can no longer be guaranteed to be optimal.
+
+### Missing Data Mechanisms
+
+&nbsp;&nbsp;&nbsp;&nbsp;The theoretical foundation for understanding missing data was established by Rubin (1976) and later expanded upon by Little and Rubin. As described by the Statistical Consulting Centre of the University of Melbourne (n.d.), data is considered Missing Completely at Random (MCAR) if the probability of being missing does not depend on the values of any of the variables in the data, Missing at Random (MAR) if the probability of being missing depends only on observed data, and Missing Not at Random (MNAR) if the probability of missingness is related to the values that would have been observed had the data not been missing. Understanding which mechanism governs the missing values in a dataset is critical because it determines which imputation strategies are appropriate and what biases might be introduced if missing data is simply ignored.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Further elaborated by APXML (n.d.), the MCAR assumption is the simplest scenario, where missingness is purely random and does not have a systematic cause related to the data, while MAR is often a reasonable working assumption when MCAR seems too simplistic and there is no strong domain reason to suspect MNAR. According to ScienceDirect (n.d.), the use of inappropriate methods for handling missing data can lead to bias in parameter estimates, bias in standard errors and test statistics, and inefficient use of data, all of which directly degrade the predictive accuracy of a regression model.
+
+### Data Preprocessing and Model Performance
+
+&nbsp;&nbsp;&nbsp;&nbsp;Data preprocessing refers to a set of techniques applied to raw data before it is used for analysis or model training. As highlighted by Lee (2025), simple steps like normalization and feature scaling can have dramatic effects on model performance, and only including features that contribute significantly to prediction accuracy is essential to building a reliable regression model. In the context of sales prediction, preprocessing steps such as handling missing values, removing duplicate records, and encoding categorical variables are necessary to ensure that the dataset meets the assumptions required for valid regression analysis.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Supporting this, research cited in the IJEDR (2025) by Mehta and Sharma (2022) demonstrated that removing outliers and cleaning data improved model performance significantly, while Singh and Gupta (2022) compared various regression models and found that proper preprocessing influenced predictive results across model types. These findings collectively support the rationale of this study: that systematic application of data cleaning techniques prior to fitting a Multiple Linear Regression model will yield measurably improved performance in global sales prediction.
 
 ## Conceptual Framework
 (Insert diagram if needed)
@@ -100,6 +123,15 @@ head(data)
 
 ## Variables Description
 
+- Global_Sales (Dependent Variable)
+- Platform (Independent Variable)
+- Game_Age (Independent Variable)
+- Genre (Independent Variable)
+- Critic_Score (Independent Variable)
+- Critic_Count (Independent Variable)
+- User_Count (Independent Variable)
+- Rating (Independent Variable)
+
 Explain dependent and independent variables.
 
 ## Data Analysis Techniques
@@ -113,7 +145,7 @@ Explain dependent and independent variables.
 ## Descriptive Statistics
 
 ```{r, echo=FALSE}
-#summary(data)
+summary(data)
 ```
 
 ## Visualization
@@ -144,11 +176,35 @@ Summarize key findings.
 
 Provide practical suggestions
 
+\newpage
+
 # References
 
 Rabinovich, Y. (2021). *Video games sales regression techniques.* Kaggle. https://www.kaggle.com/code/yonatanrabinovich/video-games-sales-regression-techniques/notebook
 
-The Investopedia Team. (2025). *Predictive Modeling: Techniques, Uses, and Key Takeaways.* https://www.investopedia.com/terms/p/predictive-modeling.asp
+Ahmad, A., et al. (2024). *Machine Learning for Missing Value Imputation.* arXiv. https://arxiv.org/pdf/2410.08308
+
+Affan, Vishwakarma, S., & Kumari, R. (2024). *Video game sales prediction model using regression model.* SSRN. https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4935036
+
+Du, V. (2025). *Predicting Video Game Sales Using Supervised Learning.* Medium. https://medium.com/inst414-data-science-tech/predicting-video-game-sales-using-supervised-learning-6bc133a177cf
+
+APXML. (n.d.). *Mechanisms of missing data (MCAR, MAR, MNAR).* https://apxml.com/courses/intro-feature-engineering/chapter-2-handling-missing-data/missing-data-mechanisms
+
+Fiveable. (2024). *4.1 Gauss-Markov assumptions.* https://fiveable.me/introduction-econometrics/unit-4/gauss-markov-assumptions/study-guide/Acd9BeZ9Ouc0yWFr
+
+Jim, F. (n.d.). *The Gauss-Markov Theorem and BLUE OLS Coefficient Estimates.* Statistics By Jim. https://statisticsbyjim.com/regression/gauss-markov-theorem-ols-blue/
+
+Lee, S. (2025). *Linear Regression: 5 Methods to Boost Prediction Accuracy.* NumberAnalytics. https://www.numberanalytics.com/blog/linear-regression-boost-prediction-accuracy
+
+Mehta, S., & Sharma, P. (2022). *As cited in House price prediction using linear regression.* IJEDR. https://rjwave.org/ijedr/papers/IJEDR2504487.pdf
+
+ScienceDirect. (n.d.). *Missing completely at random.* https://www.sciencedirect.com/topics/mathematics/missing-completely-at-random
+
+Singh, B., & Gupta, R. (2022). *As cited in House price prediction using linear regression.* IJEDR. https://rjwave.org/ijedr/papers/IJEDR2504487.pdf
+
+Statistical Consulting Centre, University of Melbourne. (n.d.). *Missing data.* https://scc.ms.unimelb.edu.au/resources/preparing-your-data/missing-data 
+
+\newpage
 
 # Appendices
 ## Appendix A: Code
