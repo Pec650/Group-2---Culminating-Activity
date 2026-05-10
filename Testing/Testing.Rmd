@@ -23,7 +23,10 @@ library(forcats)
 library(purrr)
 library(readr)
 library(stringr)
+library(corrplot)
 ```
+
+## **DATA COLLECTION**
 
 ```{r, warning=FALSE}
 data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
@@ -70,7 +73,7 @@ str(data_df)
 summary(data_df)
 ```
 
-## REGRESSION MODEL
+## **REGRESSION MODEL**
 
 ```{r, warning=FALSE}
 set.seed(12)
@@ -85,111 +88,287 @@ train.set <- reg_model[train.index,]
 test.set <- reg_model[-train.index,]
 ```
 
-```{r, warning=FALSE}
-model <- lm(Global_Sales ~ Critic_Score + Critic_Count + User_Count, data = train.set)
-summary(model)
+Train Size: **`r nrow(train.set)`**
 
-model$coefficients
+Test Size: **`r nrow(test.set)`**
 
-# Diagnostic Checking
-par(mfrow = c(2, 2))
-plot(model)
-
-# Outliers, Leverage and Influential Points
-which(hatvalues(model) > 0.08)
-plot(hatvalues(model),type="h"); abline(h=0.08)
-which(cooks.distance(model)>1)
-plot(cooks.distance(model),type="h"); abline(h=1)
-```
+Total Size: **`r nrow(data)`**
 
 ```{r, warning=FALSE}
 model <- lm(formula = Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = train.set)
 summary(model)
 
 model$coefficients
+```
 
-# Diagnostic Checking
-par(mfrow = c(2, 2))
-plot(model)
+## **OUTLIERS, LEVERAGE AND INFLUENTIAL POINTS**
 
-# Outliers, Leverage and Influential Points
+```{r, warning=FALSE}
 which(hatvalues(model) > 0.08)
 plot(hatvalues(model),type="h"); abline(h=0.08)
 which(cooks.distance(model)>1)
 plot(cooks.distance(model),type="h"); abline(h=1)
 ```
 
+## **DIAGNOSTIC CHECKING**
+
+### **I. NORMALITY**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+qqnorm(residuals(model), ylab="Residuals")
+qqline(residuals(model)) # Normality using Q-Q Plots
+```
+
+#### **2. Statistical Test**
+
+**Ho**: ϵ’s normally distributed.
+
+**Ha**: ϵ’s not normally distributed.
+
+##### **2.1. Kolmogorov-Smirnov Test**
+
+```{r, warning=FALSE}
+resid_std <- scale(residuals(model)) # mean=0, sd=1
+ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
+ks_test
+```
+
+```{r, include=FALSE}
+p_value = ks_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **the residuals are normally distributed.**" } else { "We reject the null hypothesis, therefore, **the residuals are not normally distributed.**" }`
+
+### **II. HOMOSCEDASTICITY**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+plot(fitted(model), residuals(model))
+```
+
+#### **2. Statistical Test**
+
+**Ho**: Heteroscedasticity is not present.
+
+**Ha**: Heteroscedasticity is present.
+
+##### **2.1. Breusch-Pagan-Godfrey Test**
+
+```{r, warning=FALSE}
+bp_test <- bptest(model) # Breusch-Pagan test
+bp_test
+```
+
+```{r, include=FALSE}
+p_value <- bp_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **Heteroscedasticity is not present.**" } else { "We reject the null hypothesis, therefore, **Heteroscedasticity is present.**" }`
+
+### **III. MULTICOLINEARITY**
+
+#### **1. Statistical Test**
+
+```{r, warning=FALSE}
+vif_values = vif(model)
+vif_values
+```
+
+VIF > 5 -> **moderate concern**
+
+VIF > 10 -> **serious multicollinearity**
+
+```{r, echo=FALSE}
+check_col <- vif_values[, ncol(vif_values)]
+
+for (i in 1:length(check_col)) {
+  var_name <- names(check_col)[i]
+  val <- check_col[i]
+  
+  if (val > 5) {
+    print(paste("WARNING:", var_name, "has moderate multicollinearity (VIF =", round(val, 2), ")"))
+  } else if (val > 10) {
+    print(paste("WARNING:", var_name, "has high multicollinearity (VIF =", round(val, 2), ")"))
+  } else {
+    print(paste(var_name, "is okay (VIF =", round(val, 2), ")"))
+  }
+}
+```
+
+### **IV. INDEPENDENCE**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+n = length(residuals(model))
+plot(tail(residuals(model), n-1) ~
+head(residuals(model), n-1),
+xlab=expression(hat(epsilon)[i]),
+ylab=expression(hat(epsilon)[i+1]))
+abline(h=0, v=0, col = grey(0.5))
+```
+
+#### **2. Statistical Test**
+
+**Ho**: No auto-correlation (the errors are uncorrelated)
+
+**Ha**: There exists auto-correlation
+
+##### **2.1. Durbin-Watson Test**
+
+```{r, warning=FALSE}
+dw_test = dwtest(model) # Durbin-Watson Test
+dw_test
+```
+
+```{r, include=FALSE}
+p_value <- dw_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **there is no auto-correlation.**" } else { "We reject the null hypothesis, therefore, **there exists auto-correlation.**" }`
+
+## DATA Transformation
+
+Since the model is not normally distributed based on the results of the Kolmogorov-Smirnov test, we perform a data transformation using the **Logarithmic Model**.
+
+```{r, warning=FALSE}
+train.set$Log_Global_Sales <- log(train.set$Global_Sales)
+
+model_log <- lm(Log_Global_Sales ~ Platform + Game_Age + Genre + 
+                Critic_Score + Critic_Count + User_Count + Rating, 
+                data = train.set)
+
+summary(model_log)
+```
+
+## **DIAGNOSTIC CHECKING AFTER DATA TRANSFORMATION**
+
+### **I. NORMALITY**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+qqnorm(residuals(model_log), ylab="Residuals")
+qqline(residuals(model_log)) # Normality using Q-Q Plots
+```
+
+#### **2. Statistical Test**
+
+**Ho**: ϵ’s normally distributed.
+
+**Ha**: ϵ’s not normally distributed.
+
+##### **2.1. Kolmogorov-Smirnov Test**
+
+```{r, warning=FALSE}
+resid_std <- scale(residuals(model_log)) # mean=0, sd=1
+ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
+ks_test
+```
+
+```{r, include=FALSE}
+p_value = ks_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **the residuals are normally distributed.**" } else { "We reject the null hypothesis, therefore, **the residuals are not normally distributed.**" }`
+
+### **II. HOMOSCEDASTICITY**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+plot(fitted(model_log), residuals(model_log))
+```
+
+#### **2. Statistical Test**
+
+**Ho**: Heteroscedasticity is not present.
+
+**Ha**: Heteroscedasticity is present.
+
+##### **2.1. Breusch-Pagan-Godfrey Test**
+
+```{r, warning=FALSE}
+bp_test <- bptest(model_log) # Breusch-Pagan test
+bp_test
+```
+
+```{r, include=FALSE}
+p_value <- bp_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **Heteroscedasticity is not present.**" } else { "We reject the null hypothesis, therefore, **Heteroscedasticity is present.**" }`
+
+### **III. MULTICOLINEARITY**
+
+#### **1. Statistical Test**
+
+```{r, warning=FALSE}
+vif_values = vif(model_log)
+vif_values
+```
+
+VIF > 5 -> **moderate concern**
+
+VIF > 10 -> **serious multicollinearity**
+
+```{r, echo=FALSE}
+check_col <- vif_values[, ncol(vif_values)]
+
+for (i in 1:length(check_col)) {
+  var_name <- names(check_col)[i]
+  val <- check_col[i]
+  
+  if (val > 5) {
+    print(paste("WARNING:", var_name, "has moderate multicollinearity (VIF =", round(val, 2), ")"))
+  } else if (val > 10) {
+    print(paste("WARNING:", var_name, "has high multicollinearity (VIF =", round(val, 2), ")"))
+  } else {
+    print(paste(var_name, "is okay (VIF =", round(val, 2), ")"))
+  }
+}
+```
+
+### **IV. INDEPENDENCE**
+
+#### **1. Graphical Analysis of Residuals**
+
+```{r, warning=FALSE}
+n = length(residuals(model_log))
+plot(tail(residuals(model_log), n-1) ~
+head(residuals(model_log), n-1),
+xlab=expression(hat(epsilon)[i]),
+ylab=expression(hat(epsilon)[i+1]))
+abline(h=0, v=0, col = grey(0.5))
+```
+
+#### **2. Statistical Test**
+
+**Ho**: No auto-correlation (the errors are uncorrelated)
+
+**Ha**: There exists auto-correlation
+
+##### **2.1. Durbin-Watson Test**
+
+```{r, warning=FALSE}
+dw_test = dwtest(model_log) # Durbin-Watson Test
+dw_test
+```
+
+```{r, include=FALSE}
+p_value <- dw_test$p.value
+```
+
+`r if(p_value >= 0.05) { "We fail to reject the null hypothesis, therefore, **there is no auto-correlation.**" } else { "We reject the null hypothesis, therefore, **there exists auto-correlation.**" }`
+
 ## VARIABLE SELECTION
 
 ```{r, warning=FALSE}
-k<-ols_step_best_subset(model)
+k<-ols_step_best_subset(model_log)
 k
 ```
 
-##### **Model 7** is the best model because it has the highest R-Square, Adj. R-Square, and Pred R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
-
-## EVALUATION OF REGRESSION MODEL
-
-### I. RIDGE REGRESSION
-
-```{r, warning=FALSE}
-X_full <- model.matrix(Global_Sales ~ Platform + Game_Age + Genre + 
-                         Critic_Score + Critic_Count + User_Count + Rating, 
-                       data = reg_model)[, -1]
-y_full <- reg_model$Global_Sales
-
-X_train <- X_full[train.index, ]
-X_test  <- X_full[-train.index, ]
-y_train <- y_full[train.index]
-y_test  <- y_full[-train.index]
-```
-
-```{r, warning=FALSE}
-ridge_cv <- cv.glmnet(
-  X_train, y_train,
-  alpha = 0
-)
-
-#Predictions
-ridge_pred_train <- predict(ridge_cv, X_train, s = "lambda.min")
-ridge_pred_test <- predict(ridge_cv, X_test, s = "lambda.min")
-
-# RMSE
-ridge_rmse_train <- sqrt(mean((y_train - ridge_pred_train)^2))
-ridge_rmse_test <- sqrt(mean((y_test - ridge_pred_test)^2))
-
-ridge_rmse_train
-ridge_rmse_test
-```
-
-### II. LASSO REGRESSION
-
-```{r, warning=FALSE}
-lasso_cv <- cv.glmnet(
-  X_train, y_train,
-  alpha = 1
-)
-
-#Predictions
-lasso_pred_train <- predict(lasso_cv, X_train, s = "lambda.min")
-lasso_pred_test <- predict(lasso_cv, X_test, s = "lambda.min")
-
-# RMSE
-lasso_rmse_train <- sqrt(mean((y_train - lasso_pred_train)^2))
-lasso_rmse_test <- sqrt(mean((y_test - lasso_pred_test)^2))
-
-lasso_rmse_train
-lasso_rmse_test
-```
-
-### III. COMPARISON TABLE
-
-```{r, warning=FALSE}
-rmse_results <- data.frame(
-  Model = c("Ridge", "LASSO"),
-  Train_RMSE = c(ridge_rmse_train, lasso_rmse_train),
-  Test_RMSE = c(ridge_rmse_test, lasso_rmse_test)
-)
-rmse_results
-```
-
+##### **Model 6** is the best model because despite it having a lesser R-Squared than Model 7, it still has the highest Adj. R-Square, and Pred R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
