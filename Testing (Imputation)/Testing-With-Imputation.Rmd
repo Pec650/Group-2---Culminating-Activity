@@ -1,5 +1,5 @@
 ---
-title: "Testing"
+title: "Testing With Imputation"
 author: "Group 2"
 date: ""
 output: html_document
@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+set.seed(12)
 
 library(RKaggle)
 library(dplyr)
@@ -24,6 +25,7 @@ library(purrr)
 library(readr)
 library(stringr)
 library(corrplot)
+library(mice)
 ```
 
 ## **DATA COLLECTION**
@@ -38,30 +40,14 @@ data_row_count <- nrow(data)
 
 ```{r, warning=FALSE}
 # Show data
-#head(data)
 datatable(data[1:6,], 
           options = list(scrollX = TRUE, pageLength = 6),
           rownames = FALSE)
-
-
-# Data cleaning
-data <- na.omit(data)
-
-na_row_count = data_row_count - nrow(data)
 ```
 
-#### Number of rows with missing values = **`r na_row_count`**
-#### New number of rows = **`r nrow(data)`**
+## **DATA CLEANSING**
 
 ```{r, warning=FALSE}
-# Show data after dropping all NA values
-#head(data)
-datatable(data[1:6,], 
-          options = list(scrollX = TRUE, pageLength = 6),
-          rownames = FALSE)
-
-str(data)
-
 # Drop all sales except global
 data_df <- cbind(data[,-c(6:10)],data$Global_Sales)
 data_df$Year_of_Release <- 2016 - data_df$Year_of_Release
@@ -73,12 +59,32 @@ str(data_df)
 summary(data_df)
 ```
 
+## **DATA IMPUTATION**
+
+```{r, warning=FALSE}
+data_subset <- data_df[, c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Count", "Rating")]
+
+data_subset$Platform <- as.factor(data_subset$Platform)
+data_subset$Genre <- as.factor(data_subset$Genre)
+data_subset$Rating <- as.factor(data_subset$Rating)
+
+meth <- make.method(data_subset)
+
+imp_norm <- mice(data_subset, method = "pmm", m = 1, seed = 123, printFlag = FALSE)
+
+completed_data <- complete(imp_norm, 1)
+
+datatable(completed_data, 
+          options = list(scrollX = TRUE, pageLength = 6),
+          rownames = FALSE)
+```
+
 ## **REGRESSION MODEL**
 
 ```{r, warning=FALSE}
 set.seed(12)
 
-reg_model <- data_df
+reg_model <- completed_data
 str(reg_model)
 
 # 70 : 30 RATIO
@@ -95,7 +101,7 @@ Test Size: **`r nrow(test.set)`**
 Total Size: **`r nrow(data)`**
 
 ```{r, warning=FALSE}
-model <- lm(formula = Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = train.set)
+model <- lm(formula = Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = completed_data)
 summary(model)
 
 model$coefficients
@@ -244,6 +250,15 @@ model_log <- lm(Log_Global_Sales ~ Platform + Game_Age + Genre +
 summary(model_log)
 ```
 
+## **OUTLIERS, LEVERAGE AND INFLUENTIAL POINTS**
+
+```{r, warning=FALSE}
+which(hatvalues(model_log) > 0.08)
+plot(hatvalues(model_log),type="h"); abline(h=0.08)
+which(cooks.distance(model_log)>1)
+plot(cooks.distance(model_log),type="h"); abline(h=1)
+```
+
 ## **DIAGNOSTIC CHECKING AFTER DATA TRANSFORMATION**
 
 ### **I. NORMALITY**
@@ -371,4 +386,4 @@ k<-ols_step_best_subset(model_log)
 k
 ```
 
-##### **Model 6** is the best model because despite it having a lesser R-Squared than Model 7, it still has the highest Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
+##### **Model 7** is the best model because it has the highest R-Squared and Adj. R-Square. It also has the lowest value of C(p), AIC, SBIC, and SBC
