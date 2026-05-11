@@ -73,8 +73,15 @@ data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
 
 # Bayesian Linear Regression
-meth <- make.method(data_subset)
-imp_data <- mice(data_subset, method = meth, m = 5, seed = 123, printFlag = FALSE)
+#meth <- make.method(data_subset)
+#imp_data <- mice(data_subset, method = meth, m = 5, seed = 123, printFlag = FALSE)
+
+imp_data <- mice(data_subset, 
+                    method = "pmm", 
+                    m = 1,           # Keep m=1 for speed during drafting
+                    maxit = 5,       # Standard iterations
+                    seed = 123, 
+                    printFlag = FALSE)
 
 completed_data <- complete(imp_data, 1)
 

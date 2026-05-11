@@ -19,13 +19,22 @@ Yuliongsiu, Rick Bryson N.
 knitr::opts_chunk$set(echo = TRUE)
 
 # Library
-library(RKaggle)
-library(dplyr)
-library(ggplot2)
-library(car)
-library(lmtest)
-library(olsrr)
+library(RKaggle)    # Access Kaggle
+library(readr)      # File reading
+library(dplyr)      # Data manipulation
+library(tidyr)      # Data reshaping
+library(stringr)    # String manipulation
+library(forcats)    # Handling categorical factors
+library(purrr)      # Functional programming
+library(mice)       # Bayesian Linear Regression imputation
+library(caret)      # Data splitting and pre-processing
+library(car)        # Variance Inflation Factor (VIF)
+library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
+library(olsrr)      # Comprehensive OLS regression diagnostics
+library(ggplot2)    # Main plotting engine
+library(corrplot)   # Correlation matrices
 ```
+
 # Abstract
 Provide a concise summary of the study including purpose, methods, results, and conclusions (150–250 words).
 
@@ -103,18 +112,15 @@ Provide a concise summary of the study including purpose, methods, results, and 
 
 ## Conceptual Framework
 
+```{r conceptual-framework, echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics("Conceptual_Framework.png")
+```
+
 The conceptual framework of this case study describes a flow of events detailing the different phases of data analysis it proposes.
 
 At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
 
 These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
-
-(Insert diagram if needed)
-
-```{r conceptual-framework, echo=FALSE}
-# Example placeholder
-# plot(1:10, 1:10, main="Conceptual Framework (Replace)")
-```
 
 # Chapter 3: Methodology
 
@@ -124,26 +130,68 @@ Describe the design (e.g., descriptive, experimental).
 
 ## Data Collection
 
-The dataset utilized in this study was collected from Kaggle, https://www.kaggle.com/code/yonatanrabinovich/video-games-sales-regression-techniques/input.
+The dataset utilized in this study was collected from Kaggle, named **Video Game Sales with Ratings** by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings. To address the missing values, the dataset was imputed using a **Predictive Mean Matching model**.
 
-```{r, echo=FALSE}
-# Load dataset
-data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
-head(data)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
+
+# Get data row count
+data_row_count <- nrow(dataset)
+
+# Drop all sales except global
+dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
+dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
+names(dataset)[3] <- "Game_Age"
+names(dataset)[12] <- "Global_Sales"
+
+# Select only the columns you need by name
+keep_columns <- c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Count", "Rating")
+
+# Overwrite the data with only those columns
+data_subset <- dataset[, keep_columns]
+
+data_subset$Platform <- as.factor(data_subset$Platform)
+data_subset$Genre <- as.factor(data_subset$Genre)
+data_subset$Rating <- as.factor(data_subset$Rating)
+
+# Predictive Mean Matching (PMM)
+imputed_data <- mice(data_subset, 
+                    method = "pmm", 
+                    m = 1,
+                    maxit = 5,
+                    seed = 123, 
+                    printFlag = FALSE)
+
+# Complete the dataset
+data <- complete(imputed_data, 1)
+
+# Show the table
+knitr::kable(head(data, 10), caption = "First 10 Rows of Video Game Sales Data Overview")
 ```
+
+**Total Rows: `r data_row_count`**
 
 ## Variables Description
 
-- Global_Sales (Dependent Variable)
-- Platform (Independent Variable)
-- Game_Age (Independent Variable)
-- Genre (Independent Variable)
-- Critic_Score (Independent Variable)
-- Critic_Count (Independent Variable)
-- User_Count (Independent Variable)
-- Rating (Independent Variable)
+**Dependent Variable**
 
-Explain dependent and independent variables.
+- **Global_Sales**: We measure Global_Sales as the dependent variable, which is hypothesized to be influenced by the independent variables of platform popularity, game age, genre, critic scores and counts, user engagement, and content ratings.
+
+**Independent Variables**
+
+- **Platform**: May affect Global_Sales because some gaming platforms have larger user bases and stronger market demand than others.
+
+- **Game_Age**: May influence Global_Sales since newer games often attract more buyers, while older games may experience declining sales over time.
+
+- **Genre**: Can affect Global_Sales because certain game genres are more popular and appealing to players than others.
+
+- **Critic_Score** May increase Global_Sales because games with higher review scores are more likely to attract consumers.
+
+- **Critic_Count**: May affect Global_Sales since games reviewed by more critics usually gain greater visibility and public attention.
+
+- **User_Count**: May influence Global_Sales because higher player engagement and feedback often indicate stronger popularity.
+
+- **Rating**: May affect Global_Sales by determining the target audience size and the accessibility of the game to consumers.
 
 ## Data Analysis Techniques
 
@@ -218,3 +266,68 @@ Statistical Consulting Centre, University of Melbourne. (n.d.). *Missing data.* 
 
 # Appendices
 ## Appendix A: Code
+
+```{r, eval=FALSE}
+# === R LIBRARIES ===
+
+library(RKaggle)    # Access Kaggle
+library(readr)      # File reading
+library(dplyr)      # Data manipulation
+library(tidyr)      # Data reshaping
+library(stringr)    # String manipulation
+library(forcats)    # Handling categorical factors
+library(purrr)      # Functional programming
+library(mice)       # Bayesian Linear Regression imputation
+library(caret)      # Data splitting and pre-processing
+library(car)        # Variance Inflation Factor (VIF)
+library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
+library(olsrr)      # Comprehensive OLS regression diagnostics
+library(ggplot2)    # Main plotting engine
+library(corrplot)   # Correlation matrices
+
+# === DATA COLLECTION ===
+
+# Get data from Kaggle
+dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv")
+
+# Get data row count
+data_row_count <- nrow(dataset)
+
+# Drop all sales except global
+dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
+dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
+names(dataset)[3] <- "Game_Age"
+names(dataset)[12] <- "Global_Sales"
+
+# Select only the columns you need by name
+keep_columns <- c("Global_Sales",
+                  "Platform",
+                  "Game_Age",
+                  "Genre",
+                  "Critic_Score",
+                  "Critic_Count",
+                  "User_Count",
+                  "Rating")
+
+# Overwrite the data with only those columns
+data_subset <- dataset[, keep_columns]
+
+data_subset$Platform <- as.factor(data_subset$Platform)
+data_subset$Genre <- as.factor(data_subset$Genre)
+data_subset$Rating <- as.factor(data_subset$Rating)
+
+# Predictive Mean Matching (PMM)
+imputed_data <- mice(data_subset, 
+                    method = "pmm", 
+                    m = 1,
+                    maxit = 5,
+                    seed = 123, 
+                    printFlag = FALSE)
+
+# Complete the dataset
+data <- complete(imputed_data, 1)
+
+# Show the table
+knitr::kable(head(data, 10),
+             caption = "First 10 Rows of Video Game Sales Data Overview")
+```
