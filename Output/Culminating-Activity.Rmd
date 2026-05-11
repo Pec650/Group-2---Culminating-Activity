@@ -121,7 +121,7 @@ Describe the design (e.g., descriptive, experimental).
 
 The dataset utilized in this study was collected from Kaggle, https://www.kaggle.com/code/yonatanrabinovich/video-games-sales-regression-techniques/input.
 
-```{r}
+```{r, echo=FALSE}
 # Load dataset
 data <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
 head(data)
