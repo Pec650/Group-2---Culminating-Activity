@@ -57,8 +57,6 @@ Provide a concise summary of the study including purpose, methods, results, and 
 
 - To implement and assess data imputation strategies to prevent the loss of valuable data caused by deleting incomplete rows.
 
-- To compare the performance metrics between models using data with deleted missing rows and models using imputed data.
-
 ## Significance of the Study
 &nbsp;&nbsp;&nbsp;&nbsp;This study mainly benefits stakeholders who utilize predictive analysis to guide data-driven decision making. By emphasizing the influence of missing data found within datasets used, as well as determining the impact it has to the model’s efficacy, the following groups stand to gain:
 
@@ -144,7 +142,6 @@ Explain dependent and independent variables.
 
 - Descriptive Statistics
 - Inferential Statistics
-- Machine Learning Models (if applicable)
 
 # Chapter 4: Results and Discussion
 
