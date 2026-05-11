@@ -102,6 +102,13 @@ Provide a concise summary of the study including purpose, methods, results, and 
 &nbsp;&nbsp;&nbsp;&nbsp;Supporting this, research cited in the IJEDR (2025) by Mehta and Sharma (2022) demonstrated that removing outliers and cleaning data improved model performance significantly, while Singh and Gupta (2022) compared various regression models and found that proper preprocessing influenced predictive results across model types. These findings collectively support the rationale of this study: that systematic application of data cleaning techniques prior to fitting a Multiple Linear Regression model will yield measurably improved performance in global sales prediction.
 
 ## Conceptual Framework
+
+The conceptual framework of this case study describes a flow of events detailing the different phases of data analysis it proposes.
+
+At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
+
+These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
+
 (Insert diagram if needed)
 
 ```{r conceptual-framework, echo=FALSE}
