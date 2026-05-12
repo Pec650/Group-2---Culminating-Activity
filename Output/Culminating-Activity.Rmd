@@ -34,6 +34,9 @@ library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
 library(knitr)      # Better summary table
+library(broom)
+
+set.seed(5)
 ```
 
 # Abstract
@@ -117,28 +120,40 @@ Provide a concise summary of the study including purpose, methods, results, and 
 knitr::include_graphics("Conceptual_Framework.png")
 ```
 
-The conceptual framework of this case study describes a flow of events detailing the different phases of data analysis it proposes.
+&nbsp;&nbsp;&nbsp;&nbsp;The conceptual framework of this case study describes a flow of events detailing the different phases of data analysis it proposes.
 
-At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
+&nbsp;&nbsp;&nbsp;&nbsp;At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
 
-These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
+&nbsp;&nbsp;&nbsp;&nbsp;These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
 
 # Chapter 3: Methodology
-
-## Research Design
-
-Describe the design (e.g., descriptive, experimental).
-
-## Data Collection
-
-The dataset utilized in this study was collected from Kaggle, named **Video Game Sales with Ratings** by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
 
 # Get data row count
 data_row_count <- nrow(dataset)
+```
 
+## Research Design
+
+&nbsp;&nbsp;&nbsp;&nbsp;This study employs a quantitative explanatory research design to investigate the determinants of video game commercial success based on global sales. The study utilizes the Video Game Sales dataset from Kaggle, comprising over 16,000 entries. Data pre-processing was conducted using R, which involved data imputation to address missing values and a 70/30 train-test split. This partitioning ensures that the predictive model is trained on 70% of the data and validated against a 30% hold-out set to assess its generalizability.
+
+&nbsp;&nbsp;&nbsp;&nbsp;The primary analytical framework is Multiple Linear Regression. To ensure the reliability of the regression coefficients and $p$-values, the model is evaluated against the four classical linear regression assumptions:
+
+1. Normality - This refers to the distribution of the residuals. This study utilizes the Kolmogorov-Smirnov test.
+
+2. Homoscedasticity - It is the spread of your residuals should be the same across all levels of your predicted values. This study utilizes the Breusch-Pagan test; a violation (heteroscedasticity) would suggest that the model’s standard errors are biased.
+
+3. Multicollinearity - This occurs when two or more of your independent variables are too highly correlated with each other. This study calculates the Variance Inflation Factor of each predictor to check if there are any high correlation between predictors.
+
+4. Independence - This assumes that the residual for one observation is not related to the residual of another. This study will utilize the Durbin-Watson test to check for autocorrelation.
+
+## Data Collection
+
+The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
 dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
@@ -164,9 +179,9 @@ knitr::kable(head(data_subset[, 1:4], 6), caption = "First Six Rows of Video Gam
 knitr::kable(head(data_subset[, 5:9], 6))
 ```
 
-## Data Cleansing
+## Data Imputation
 
-The dataset have missing values **(NA)**. To address the missing values, the dataset was imputed using a **Predictive Mean Matching model**.
+The dataset have missing values *(NA)*. To address the missing values, the dataset was imputed using a Predictive Mean Matching model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Predictive Mean Matching (PMM)
@@ -212,8 +227,21 @@ knitr::kable(head(data[, 5:9], 6))
 
 ## Data Analysis Techniques
 
-- Descriptive Statistics
-- Inferential Statistics
+- **Descriptive Statistics**
+
+  - **Five Number Summary** - Summarizes the overall characteristics of the dataset (minimum, first quartile, median, third quartile, and maximum). This helped identify the skewness in Global_Sales.
+
+  - **Frequency Distribution** - To show the frequency of the categorical variables (Platform, Genre, and Rating). It determines the most prevalent categories in the dataset.
+
+- **Inferential Statistics**
+
+  - **Multiple Linear Regression** - The core technique used to model the relationship between multiple predictors (Platform, Game Age, Genre, Critic Score, Critic Count, User Score, User Count, and Rating) and the outcome (Global Sales).
+  
+  - **Log-Transformation** - A mathematical transformation applied to the dependent variable ($log(y)$) to stabilize variance and normalize the distribution, addressing the right-skewness identified in the descriptive phase.
+  
+  - **Hypothesis Testing ($p$-values)**: A significance level of $\alpha = 0.05$ was established. Predictors with $p < 0.05$ were considered statistically significant contributors to global sales. Additionally, this technique is utilized in diagnostic checking to validate the model's assumptions. Specifically, for tests of Normality (Kolmogorov-Smirnov), Homoscedasticity (Breusch-Pagan), and Independence (Durbin-Watson), a $p$-value greater than 0.05 is required to fail to reject the null hypothesis, thereby confirming that the model meets the necessary statistical requirements for reliable inference.
+  
+  - **Coefficient of Determination ($R^2$ and Adjusted $R^2$)**: These metrics were used to evaluate the goodness-of-fit, representing the proportion of variance in sales explained by the model. Additionally, it is also applicable for variable selection.
 
 # Chapter 4: Results and Discussion
 
@@ -222,47 +250,459 @@ knitr::kable(head(data[, 5:9], 6))
 ```{r summary-table-first-half, echo=FALSE, results='asis'}
 # Get all numeric columns
 keep_columns <- c("Global_Sales", "Game_Age", "Critic_Score", "Critic_Count", "User_Score", "User_Count")
-sub_data <- dataset[, keep_columns]
+sub_data <- data[, keep_columns]
 clean_summary <- as.data.frame(unclass(summary(sub_data)))
 
 # Render summary table of numeric columns
 kable(clean_summary, 
       format = "latex", 
       booktabs = TRUE, 
-      caption = "Descriptive Statistics of Dataset",
+      caption = "Five Number Summary",
       position = "!h")
 ```
 
 ```{r summary-table-second-half, echo=FALSE, results='asis'}
 # Get all factor columns
 keep_columns <- c("Platform", "Genre", "Rating")
-sub_data <- dataset[, keep_columns]
+sub_data <- data[, keep_columns]
 clean_summary <- as.data.frame(unclass(summary(sub_data)))
 
 # Render summary table of factor columns
 kable(clean_summary, 
       format = "latex", 
       booktabs = TRUE,
+      caption = "Frequency Distribution",
       position = "!h")
 ```
 
+\
+
+&nbsp;&nbsp;&nbsp;&nbsp;Table 3 and 4 presents the descriptive statistics for both numerical and categorical variables within the dataset. For numerical features such as Global Sales and Critic Scores, the table details the distributional characteristics through measures of central tendency and dispersion. For categorical features (Platform, Genre, and Rating), the summary provides the total observation count and data classification.
+
 ## Visualization
 ```{r}
-library(ggplot2)
 #ggplot(data, aes(x=Variable1, y=Variable2)) +
 #  geom_point() +
 #  theme_minimal()
 ```
 
 ## Model
-```{r}
-#model <- lm(total_sales~., numeric_data)
-#summary(model)
+
+&nbsp;&nbsp;&nbsp;&nbsp;Following the data preprocessing and imputation phases, a Multiple Linear Regression model was constructed to quantify the relationship between various game attributes and their respective global sales. The dataset ($N = `r format(data_row_count, big.mark = ",")`$) was randomly partitioned into a Training Set (70%) and a Test Set (30%) using a fixed seed.
+
+&nbsp;&nbsp;&nbsp;&nbsp;The following tables present the estimated coefficients ($\beta$), the statistical significance of each predictor ($p$-value), and the overall goodness-of-fit metrics for the baseline model.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# 70 : 30 RATIO
+train.size <- floor(0.7*nrow(data))
+train.index <- sample(1:nrow(data),train.size, replace = F)
+train.set <- data[train.index,]
+test.set <- data[-train.index,]
+
+model <- lm(formula = Global_Sales ~ ., data = train.set)
+
+# Get the clean table
+model_summary <- tidy(model) %>%
+  filter(p.value < 0.05)
+
+kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales")
+
+# Extract global model metrics
+model_metrics <- glance(model) %>%
+  select(r.squared, adj.r.squared, sigma, statistic, p.value) %>%
+  mutate(
+    r.squared = round(r.squared, 4),
+    adj.r.squared = round(adj.r.squared, 4),
+    sigma = round(sigma, 4),
+    statistic = round(statistic, 4),
+    p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 4)))
+  ) %>%
+  rename(
+    `R-Squared` = r.squared,
+    `Adj R-Squared` = adj.r.squared,
+    `Residual SE` = sigma,
+    `F-Statistic` = statistic,
+    `p-value` = p.value
+  )
+
+# Display as a clean table
+kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics")
 ```
 
 ## Interpretation
 
 Discuss findings in paragraph form.
+
+## Outliers, Leverage, and Influential Points
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+which(hatvalues(model) > 0.08)
+
+which(cooks.distance(model) > 1)
+```
+
+## Diagnostic Checking
+
+### A. Normality
+
+#### Statistical Test
+\
+- **Ho**: the residuals are normally distributed.
+\
+- **Ha**: the residuals are not normally distributed.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+resid_std <- scale(residuals(model)) # mean=0, sd=1
+ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
+d_value = round(ks_test$statistic, 4)
+p_value = ks_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+ks_valid = valid
+
+# Create clean table of the Kolmogorov-Smirnov Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`D`, ~`p-value`, ~`Status`,
+  "Kolmogorov-Smirnov", d_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Kolmogorov-Smirnov Test Results",
+      align = "llll",
+      position = "!h")
+```
+
+Based on the Kolmogorov-Smirnov test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, the residuals are normally distributed."} else {"reject the null hypothesis, therefore, the residuals are not normally distributed."}`
+
+### B. Homoscedasticity
+
+#### Statistical Test
+\
+- **Ho**: Heteroscedasticity is not present.
+\
+- **Ha**: Heteroscedasticity is present.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+bp_test <- bptest(model) # Breusch-Pagan Test
+bp_value = round(bp_test$statistic, 4)
+df_value <- bp_test$parameter
+p_value = bp_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+bp_valid = valid
+
+# Create clean table of the Breusch-Pagan Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`BP`, ~`df`, ~`p-value`, ~`Status`,
+  "Breusch-Pagan", bp_value, df_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Breusch-Pagan Test Results",
+      align = "lllll",
+      position = "!h")
+```
+
+Based on the Breusch-Pagan test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, Heteroscedasticity is not present."} else {"reject the null hypothesis, therefore, Heteroscedasticity is present."}`
+
+### C. Multicolinearity
+
+- If **VIF > 5** -> Moderate concern.
+- If **VIF > 10** -> Serious multicollinearity.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+vif_values = as.data.frame(vif(model))
+
+# Create VIF table
+vif_table <- data.frame(
+  Variable = rownames(vif_values),
+  VIF = round(vif_values$`GVIF^(1/(2*Df))`, 4), 
+  Status = ifelse(vif_values$`GVIF^(1/(2*Df))` < 5, "Passed", "Violated")
+)
+
+valid = max(vif_table$VIF) < 5
+vif_valid = valid
+
+# Render the table for PDF
+kable(vif_table, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Variance Inflation Factor (VIF) Results",
+      align = "lll",
+      position = "!h")
+```
+
+`r if(valid) {"Since there is no high correlation with other independent variables,
+so it does not have a multicollinearity issue."} else {"Since there are some high correlation with other independent variables, it does have a multicollinearity issue."}`
+
+### D. Independence
+
+#### Statistical Test
+\
+- **Ho:** No auto-correlation.
+\
+- **Ha:** There exists auto-correlation.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+dw_test = dwtest(model) # Durbin-Watson Test
+dw_value = round(dw_test$statistic, 4)
+p_value = dw_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+dw_valid = valid
+
+# Create clean table of the Durbin-Watson Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`DW`, ~`p-value`, ~`Status`,
+  "Durbin-Watson", dw_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Durbin-Watson Test Results",
+      align = "llll",
+      position = "!h")
+```
+
+Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
+
+## Interpretation
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+# Create clean table of the diagnostic checking summary
+ks_test_result <- tribble(
+  ~`Assumptions`, ~`Statistical Test`, ~`Status`,
+  "Normality", "Kolmogorov-Smirnov", ifelse(ks_valid, "Passed", "Violated"),
+  "Homoscedasticity", "Breusch-Pagan", ifelse(bp_valid, "Passed", "Violated"),
+  "Multicolinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
+  "Independence", "Durbin-Watson", ifelse(dw_valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result,
+      format = "latex",
+      booktabs = TRUE,
+      caption = "Diagnostic Checking Summary",
+      align = "llll",
+      position = "!h")
+```
+
+Discuss findings in paragraph form.
+
+## Model Transformation
+
+The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the baseline model.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
+
+# Get the clean table
+model_summary <- tidy(model) %>%
+  filter(p.value < 0.05)
+
+kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales After Transformation")
+
+# Extract global model metrics
+model_metrics <- glance(model) %>%
+  select(r.squared, adj.r.squared, sigma, statistic, p.value) %>%
+  mutate(
+    r.squared = round(r.squared, 4),
+    adj.r.squared = round(adj.r.squared, 4),
+    sigma = round(sigma, 4),
+    statistic = round(statistic, 4),
+    p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 4)))
+  ) %>%
+  rename(
+    `R-Squared` = r.squared,
+    `Adj R-Squared` = adj.r.squared,
+    `Residual SE` = sigma,
+    `F-Statistic` = statistic,
+    `p-value` = p.value
+  )
+
+# Display as a clean table
+kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics After Transformation")
+```
+
+## Interpretation
+
+Discuss findings in paragraph form.
+
+## Outliers, Leverage, and Influential Points
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+which(hatvalues(model) > 0.08)
+
+which(cooks.distance(model)>1)
+```
+
+## Diagnostic Checking
+
+### A. Normality
+
+#### Statistical Test
+\
+- **Ho**: the residuals are normally distributed.
+\
+- **Ha**: the residuals are not normally distributed.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+resid_std <- scale(residuals(model)) # mean=0, sd=1
+ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
+d_value = round(ks_test$statistic, 4)
+p_value = ks_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+ks_valid = valid
+
+# Create clean table of the Kolmogorov-Smirnov Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`D`, ~`p-value`, ~`Status`,
+  "Kolmogorov-Smirnov", d_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Kolmogorov-Smirnov Test Results After Transformation",
+      align = "llll",
+      position = "!h")
+```
+
+Based on the Kolmogorov-Smirnov test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, the residuals are normally distributed."} else {"reject the null hypothesis, therefore, the residuals are not normally distributed."}`
+
+### B. Homoscedasticity
+
+#### Statistical Test
+\
+- **Ho**: Heteroscedasticity is not present.
+\
+- **Ha**: Heteroscedasticity is present.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+bp_test <- bptest(model) # Breusch-Pagan Test
+bp_value = round(bp_test$statistic, 4)
+df_value <- bp_test$parameter
+p_value = bp_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+bp_valid = valid
+
+# Create clean table of the Breusch-Pagan Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`BP`, ~`df`, ~`p-value`, ~`Status`,
+  "Breusch-Pagan", bp_value, df_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Breusch-Pagan Test Results After Transformation",
+      align = "lllll",
+      position = "!h")
+```
+
+Based on the Breusch-Pagan test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, Heteroscedasticity is not present."} else {"reject the null hypothesis, therefore, Heteroscedasticity is present."}`
+
+### C. Multicolinearity
+
+- If **VIF > 5** -> Moderate concern.
+- If **VIF > 10** -> Serious multicollinearity.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+vif_values = as.data.frame(vif(model))
+
+# Create VIF table
+vif_table <- data.frame(
+  Variable = rownames(vif_values),
+  VIF = round(vif_values$`GVIF^(1/(2*Df))`, 4), 
+  Status = ifelse(vif_values$`GVIF^(1/(2*Df))` < 5, "Passed", "Violated")
+)
+
+valid = max(vif_table$VIF) < 5
+vif_valid = valid
+
+# Render the table for PDF
+kable(vif_table, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Variance Inflation Factor (VIF) Results After Transformation",
+      align = "lll",
+      position = "!h")
+```
+
+`r if(valid) {"Since there is no high correlation with other independent variables,
+so it does not have a multicollinearity issue."} else {"Since there are some high correlation with other independent variables, it does have a multicollinearity issue."}`
+
+### D. Independence
+
+#### Statistical Test
+\
+- **Ho:** No auto-correlation.
+\
+- **Ha:** There exists auto-correlation.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+dw_test = dwtest(model) # Durbin-Watson Test
+dw_value = round(dw_test$statistic, 4)
+p_value = dw_test$p.value
+p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
+valid = p_value >= 0.05
+dw_valid = valid
+
+# Create clean table of the Durbin-Watson Test results
+ks_test_result <- tribble(
+  ~`Statistical Test`, ~`DW`, ~`p-value`, ~`Status`,
+  "Durbin-Watson", dw_value, p_value_display, ifelse(valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Durbin-Watson Test Results After Transformation",
+      align = "llll",
+      position = "!h")
+```
+
+Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
+
+## Interpretation
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+# Create clean table of the diagnostic checking summary
+ks_test_result <- tribble(
+  ~`Assumptions`, ~`Statistical Test`, ~`Status`,
+  "Normality", "Kolmogorov-Smirnov", ifelse(ks_valid, "Passed", "Violated"),
+  "Homoscedasticity", "Breusch-Pagan", ifelse(bp_valid, "Passed", "Violated"),
+  "Multicolinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
+  "Independence", "Durbin-Watson", ifelse(dw_valid, "Passed", "Violated")
+)
+
+# Render the table for PDF
+kable(ks_test_result,
+      format = "latex",
+      booktabs = TRUE,
+      caption = "Diagnostic Checking Summary After Transformation",
+      align = "llll",
+      position = "!h")
+```
+
+Discuss findings in paragraph form.
+
+## Variable Selection
+
+## Interpretation
 
 # Chapter 5: Conclusion and Recommendations
 
@@ -325,6 +765,8 @@ library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
 library(knitr)      # Better summary table
+
+set.seed(5)
 
 # === DATA COLLECTION ===
 
