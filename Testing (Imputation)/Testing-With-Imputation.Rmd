@@ -55,6 +55,9 @@ data_df$Year_of_Release <- 2016 - data_df$Year_of_Release
 names(data_df)[3] <- "Game_Age"
 names(data_df)[12] <- "Global_Sales"
 
+data_df <- data_df %>% mutate(User_Score = as.numeric(na_if(User_Score, "tbd")))
+data_df$User_Score <- data_df$User_Score * 10
+
 #name column is an id column we can remove for good (only used for games Top ten sales)
 data_df <- data_df[,-1]
 
@@ -66,7 +69,10 @@ summary(data_df)
 ## **DATA IMPUTATION (Bayesian Linear Regression)**
 
 ```{r, warning=FALSE}
-data_subset <- data_df[, c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Count", "Rating")]
+keep_columns <- c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Score", "User_Count", "Rating")
+
+# Overwrite the data with only those columns
+data_subset <- data_df[, keep_columns]
 
 data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
@@ -112,7 +118,7 @@ Test Size: **`r nrow(test.set)`**
 Total Size: **`r nrow(data)`**
 
 ```{r, warning=FALSE}
-model <- lm(formula = Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Count + Rating, data = completed_data)
+model <- lm(formula = Global_Sales ~ ., data = completed_data)
 summary(model)
 
 model$coefficients
@@ -254,9 +260,7 @@ Since the model is not normally distributed based on the results of the Kolmogor
 ```{r, warning=FALSE}
 train.set$Log_Global_Sales <- log(train.set$Global_Sales)
 
-model_log <- lm(Log_Global_Sales ~ Platform + Game_Age + Genre + 
-                Critic_Score + Critic_Count + User_Count + Rating, 
-                data = train.set)
+model_log <- lm(Log_Global_Sales ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Score + User_Count + Rating, data = train.set)
 
 summary(model_log)
 ```
@@ -405,7 +409,7 @@ k
 # Define training control
 train.control <- trainControl(method = "cv", number = 3)
 
-model <- train(log(Global_Sales) ~ ., data = completed_data, method = "lm", trControl = train.control)
+model <- train(log(Global_Sales) ~ Platform + Game_Age + Genre + Critic_Score + Critic_Count + User_Score + User_Count + Rating, data = completed_data, method = "lm", trControl = train.control)
 
 # Summarize the results
 print(model)

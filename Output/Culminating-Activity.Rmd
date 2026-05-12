@@ -33,6 +33,7 @@ library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
 library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
+library(knitr)      # Better summary table
 ```
 
 # Abstract
@@ -130,7 +131,7 @@ Describe the design (e.g., descriptive, experimental).
 
 ## Data Collection
 
-The dataset utilized in this study was collected from Kaggle, named **Video Game Sales with Ratings** by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings. To address the missing values, the dataset was imputed using a **Predictive Mean Matching model**.
+The dataset utilized in this study was collected from Kaggle, named **Video Game Sales with Ratings** by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
@@ -144,8 +145,12 @@ dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
 names(dataset)[3] <- "Game_Age"
 names(dataset)[12] <- "Global_Sales"
 
+# Convert User Score to numeric
+dataset <- dataset %>% mutate(User_Score = as.numeric(na_if(User_Score, "tbd")))
+dataset$User_Score <- dataset$User_Score * 10
+
 # Select only the columns you need by name
-keep_columns <- c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Count", "Rating")
+keep_columns <- c("Global_Sales", "Platform", "Game_Age", "Genre", "Critic_Score", "Critic_Count", "User_Score", "User_Count", "Rating")
 
 # Overwrite the data with only those columns
 data_subset <- dataset[, keep_columns]
@@ -154,6 +159,16 @@ data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
 
+# Show the table before imputation
+knitr::kable(head(data_subset[, 1:4], 6), caption = "First Six Rows of Video Game Sales Data Overview")
+knitr::kable(head(data_subset[, 5:9], 6))
+```
+
+## Data Cleansing
+
+The dataset have missing values **(NA)**. To address the missing values, the dataset was imputed using a **Predictive Mean Matching model**.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Predictive Mean Matching (PMM)
 imputed_data <- mice(data_subset, 
                     method = "pmm", 
@@ -165,19 +180,19 @@ imputed_data <- mice(data_subset,
 # Complete the dataset
 data <- complete(imputed_data, 1)
 
-# Show the table
-knitr::kable(head(data, 10), caption = "First 10 Rows of Video Game Sales Data Overview")
+# Show the table after imputation
+knitr::kable(head(data[, 1:4], 6),
+             caption = "First Six Rows of the Data After Imputation")
+knitr::kable(head(data[, 5:9], 6))
 ```
-
-**Total Rows: `r data_row_count`**
 
 ## Variables Description
 
-**Dependent Variable**
+### Dependent Variable
 
 - **Global_Sales**: We measure Global_Sales as the dependent variable, which is hypothesized to be influenced by the independent variables of platform popularity, game age, genre, critic scores and counts, user engagement, and content ratings.
 
-**Independent Variables**
+### Independent Variables
 
 - **Platform**: May affect Global_Sales because some gaming platforms have larger user bases and stronger market demand than others.
 
@@ -188,6 +203,8 @@ knitr::kable(head(data, 10), caption = "First 10 Rows of Video Game Sales Data O
 - **Critic_Score** May increase Global_Sales because games with higher review scores are more likely to attract consumers.
 
 - **Critic_Count**: May affect Global_Sales since games reviewed by more critics usually gain greater visibility and public attention.
+
+- **User_Score** May increase Global_Sales because games with higher review scores from users are more likely to attract more consumers.
 
 - **User_Count**: May influence Global_Sales because higher player engagement and feedback often indicate stronger popularity.
 
@@ -202,8 +219,31 @@ knitr::kable(head(data, 10), caption = "First 10 Rows of Video Game Sales Data O
 
 ## Descriptive Statistics
 
-```{r, echo=FALSE}
-summary(data)
+```{r summary-table-first-half, echo=FALSE, results='asis'}
+# Get all numeric columns
+keep_columns <- c("Global_Sales", "Game_Age", "Critic_Score", "Critic_Count", "User_Score", "User_Count")
+sub_data <- dataset[, keep_columns]
+clean_summary <- as.data.frame(unclass(summary(sub_data)))
+
+# Render summary table of numeric columns
+kable(clean_summary, 
+      format = "latex", 
+      booktabs = TRUE, 
+      caption = "Descriptive Statistics of Dataset",
+      position = "!h")
+```
+
+```{r summary-table-second-half, echo=FALSE, results='asis'}
+# Get all factor columns
+keep_columns <- c("Platform", "Genre", "Rating")
+sub_data <- dataset[, keep_columns]
+clean_summary <- as.data.frame(unclass(summary(sub_data)))
+
+# Render summary table of factor columns
+kable(clean_summary, 
+      format = "latex", 
+      booktabs = TRUE,
+      position = "!h")
 ```
 
 ## Visualization
@@ -284,6 +324,7 @@ library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
 library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
+library(knitr)      # Better summary table
 
 # === DATA COLLECTION ===
 
@@ -299,6 +340,11 @@ dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
 names(dataset)[3] <- "Game_Age"
 names(dataset)[12] <- "Global_Sales"
 
+# Convert User Score to numeric
+dataset <- dataset %>%
+           mutate(User_Score = as.numeric(na_if(User_Score, "tbd")))
+dataset$User_Score <- dataset$User_Score * 10
+
 # Select only the columns you need by name
 keep_columns <- c("Global_Sales",
                   "Platform",
@@ -306,6 +352,7 @@ keep_columns <- c("Global_Sales",
                   "Genre",
                   "Critic_Score",
                   "Critic_Count",
+                  "User_Score",
                   "User_Count",
                   "Rating")
 
@@ -315,6 +362,11 @@ data_subset <- dataset[, keep_columns]
 data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
+
+# Show the table before imputation
+knitr::kable(head(data_subset[, 1:4], 6),
+             caption = "First Six Rows of Video Game Sales Data Overview")
+knitr::kable(head(data_subset[, 5:9], 6))
 
 # Predictive Mean Matching (PMM)
 imputed_data <- mice(data_subset, 
@@ -327,7 +379,8 @@ imputed_data <- mice(data_subset,
 # Complete the dataset
 data <- complete(imputed_data, 1)
 
-# Show the table
-knitr::kable(head(data, 10),
-             caption = "First 10 Rows of Video Game Sales Data Overview")
+# Show the table after imputation
+knitr::kable(head(data[, 1:4], 6),
+             caption = "First Six Rows of the Data After Imputation")
+knitr::kable(head(data[, 5:9], 6))
 ```
