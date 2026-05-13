@@ -83,7 +83,6 @@ Provide a concise summary of the study including purpose, methods, results, and 
 
 &nbsp;&nbsp;&nbsp;&nbsp;This research focuses on predicting global video game sales by comparing two data-handling methods which are deleting missing rows and using the Bayesian Linear Regression imputation. The analysis is specifically performed using Multiple Linear Regression within the R programming environment. The primary goal is to determine which data-handling technique leads to a more accurate and reliable prediction model.
 
-
 # Chapter 2: Review of Related Literature
 
 ## Related Studies
@@ -154,6 +153,8 @@ data_row_count <- nrow(dataset)
 The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(5)
+
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
 dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
@@ -243,6 +244,8 @@ knitr::kable(head(data[, 5:9], 6))
   
   - **Coefficient of Determination ($R^2$ and Adjusted $R^2$)**: These metrics were used to evaluate the goodness-of-fit, representing the proportion of variance in sales explained by the model. Additionally, it is also applicable for variable selection.
 
+\newpage
+
 # Chapter 4: Results and Discussion
 
 ## Descriptive Statistics
@@ -275,16 +278,42 @@ kable(clean_summary,
       position = "!h")
 ```
 
-\
-
 &nbsp;&nbsp;&nbsp;&nbsp;Table 3 and 4 presents the descriptive statistics for both numerical and categorical variables within the dataset. For numerical features such as Global Sales and Critic Scores, the table details the distributional characteristics through measures of central tendency and dispersion. For categorical features (Platform, Genre, and Rating), the summary provides the total observation count and data classification.
 
 ## Visualization
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #ggplot(data, aes(x=Variable1, y=Variable2)) +
 #  geom_point() +
 #  theme_minimal()
+
+data_df = data
+
+Age_bar <- ggplot(data_df, aes(x=Game_Age)) + geom_bar(color = "black", fill = "forestgreen") + theme(text = element_text(size=12)) + labs(title = "Games by Game Age", y = "Count", x = "Game Age")
+Age_bar
+
+Critic_Score_hist <- ggplot(data_df, aes(Critic_Score))
+Critic_Score_hist + geom_histogram(binwidth = 4, color = "black",fill = "red") + theme(text = element_text(size=12)) + labs(title = "Games by Critic Score", y = "Count", x = "Critic Scores")
+
+Critic_Count_hist <- ggplot(data_df, aes(Critic_Count))
+Critic_Count_hist + geom_histogram(binwidth = 4, color = "black",fill = "blue") + theme(text = element_text(size=12)) + labs(title = "Games by Critic Count", y = "Count", x = "Critic Count")
+
+Platform_bar <- ggplot(data_df, aes(x=Platform,fill =Platform)) + geom_bar() +
+  theme(
+    text = element_text(size=12),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size=9)
+  ) + labs(title = "Games by Platform", y = "Platform", x = "Genre")
+Platform_bar
+
+Genre_Bar <- ggplot(data_df, aes(x=Genre,fill =Genre)) + geom_bar() + theme(text = element_text(size=12),axis.text.x=element_text(angle = 90,vjust = 0.4,size=9)) + labs(title = "Games by Genre", y = "Count", x = "Genre")
+Genre_Bar
+
+Rating_bar <- ggplot(data_df, aes(x=Rating,fill =Rating)) + geom_bar() + theme(text = element_text(size=12)) + labs(title = "Games by Rating", y = "Rating", x = "Genre") 
+Rating_bar
+
+#plot(data_df, pch=19, col = "blue")
 ```
+
+\newpage
 
 ## Model
 
@@ -292,7 +321,7 @@ kable(clean_summary,
 
 &nbsp;&nbsp;&nbsp;&nbsp;The following tables present the estimated coefficients ($\beta$), the statistical significance of each predictor ($p$-value), and the overall goodness-of-fit metrics for the baseline model.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # 70 : 30 RATIO
 train.size <- floor(0.7*nrow(data))
 train.index <- sample(1:nrow(data),train.size, replace = F)
@@ -327,11 +356,18 @@ model_metrics <- glance(model) %>%
 
 # Display as a clean table
 kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics")
+
+model_summary_display = summary(model)
+
+f_value <- model_summary_display$fstatistic
+p_value <- pf(f_value[1], f_value[2], f_value[3], lower.tail = FALSE)
+p_value <- ifelse(p_value < 0.001, "< 0.001", paste0("= ", as.character(round(p_value, 4))))
+untransformed_r_squared <- as.numeric(model_summary_display$r.squared)
 ```
 
 ## Interpretation
 
-Discuss findings in paragraph form.
+&nbsp;&nbsp;&nbsp;&nbsp;The multiple linear regression model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(untransformed_r_squared, 4)`). Several platform variables, particularly Game Boy, NES, Wii, and Xbox One, showed strong positive associations with global sales. Critic score and critic count were also significant positive predictors, suggesting that higher professional review ratings and greater review exposure are associated with increased sales. In contrast, genres such as Strategy and Puzzle exhibited negative effects on sales performance. Overall, the findings suggest that platform selection, genre, and review metrics significantly influence global video game sales.
 
 ## Outliers, Leverage, and Influential Points
 
@@ -474,7 +510,7 @@ kable(ks_test_result,
 
 Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
 
-## Interpretation
+## Diagnostic Checking Summary
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Create clean table of the diagnostic checking summary
@@ -495,7 +531,7 @@ kable(ks_test_result,
       position = "!h")
 ```
 
-Discuss findings in paragraph form.
+&nbsp;&nbsp;&nbsp;&nbsp;The initial diagnostic tests (Table 11) revealed significant violations of normality and homoscedasticity, largely driven by the extreme right-skewness of the Global Sales data. To address this and ensure the validity of our statistical inferences, a logarithmic transformation will be applied to the dependent variable for the model transformation.
 
 ## Model Transformation
 
@@ -530,11 +566,18 @@ model_metrics <- glance(model) %>%
 
 # Display as a clean table
 kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics After Transformation")
+
+model_summary_display = summary(model)
+
+f_value <- model_summary_display$fstatistic
+p_value <- pf(f_value[1], f_value[2], f_value[3], lower.tail = FALSE)
+p_value <- ifelse(p_value < 0.001, "< 0.001", paste0("= ", as.character(round(p_value, 4))))
+transformed_r_squared <- as.numeric(model_summary_display$r.squared)
 ```
 
 ## Interpretation
 
-Discuss findings in paragraph form.
+&nbsp;&nbsp;&nbsp;&nbsp;After the logarithmic transformation, the multiple linear regression model was still statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(transformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(transformed_r_squared, 4)`), which is an improvement from the untransformed model (R² = `r round(untransformed_r_squared, 4)`).
 
 ## Outliers, Leverage, and Influential Points
 
@@ -677,7 +720,7 @@ kable(ks_test_result,
 
 Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
 
-## Interpretation
+## Diagnostic Checking Summary
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Create clean table of the diagnostic checking summary
@@ -703,6 +746,8 @@ Discuss findings in paragraph form.
 ## Variable Selection
 
 ## Interpretation
+
+\newpage
 
 # Chapter 5: Conclusion and Recommendations
 

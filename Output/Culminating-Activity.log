@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.12)  12 MAY 2026 22:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.12)  13 MAY 2026 08:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -492,58 +492,107 @@ File: Conceptual_Framework.png Graphic file (type png)
 Package pdftex.def Info: Conceptual_Framework.png  used on input line 348.
 (pdftex.def)             Requested size: 375.80544pt x 178.83203pt.
 [4 <./Conceptual_Framework.png>]
-ignored: Infinite glue shrinkage found in box being split [5] [6]
-Overfull \hbox (17.02428pt too wide) in paragraph at lines 602--615
+ignored: Infinite glue shrinkage found in box being split [5] [6] [7]
+Overfull \hbox (17.02428pt too wide) in paragraph at lines 604--617
  [][] 
  []
 
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-1.pdf, id=85, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-1.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-1.pdf  used on input line 648.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-2.pdf, id=86, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-2.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-2.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-2.pdf  used on input line 649.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-3.pdf, id=87, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-3.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-3.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-3.pdf  used on input line 650.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-4.pdf, id=88, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-4.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-4.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-4.pdf  used on input line 651.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-5.pdf, id=89, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-5.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-5.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-5.pdf  used on input line 652.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
+<Culminating-Activity_files/figure-latex/unnamed-chunk-5-6.pdf, id=90, 469.755pt x 325.215pt>
+File: Culminating-Activity_files/figure-latex/unnamed-chunk-5-6.pdf Graphic file (type pdf)
+<use Culminating-Activity_files/figure-latex/unnamed-chunk-5-6.pdf>
+Package pdftex.def Info: Culminating-Activity_files/figure-latex/unnamed-chunk-5-6.pdf  used on input line 653.
+(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 637--638
-
+Underfull \hbox (badness 10000) in paragraph at lines 648--654
+[]
  []
 
-[7]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 649.
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--654
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--654
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--654
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--654
+[]
+ []
+
+[8]
+Overfull \vbox (23.45663pt too high) has occurred while \output is active []
+
+[9 <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-1.pdf> <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-2.pdf>] [10 <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-3.pdf>] [11 <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-4.pdf>] [12 <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-5.pdf>] [13 <./Culminating-Activity_files/figure-latex/unnamed-chunk-5-6.pdf>] [14]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 748.
 (c:/ProgramData/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-ignored: Infinite glue shrinkage found in box being split [8] [9]
+) [15] [16] [17]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+[18]
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[10]
-ignored: Infinite glue shrinkage found in box being split [11] [12] [13] [14] [15]
+[19] [20] [21]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1175.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1201.
 
-Overfull \vbox (1.14359pt too high) detected at line 1251
+Overfull \vbox (1.14359pt too high) detected at line 1277
  []
 
-[16] [17] (./Culminating-Activity.aux)
+[22] [23] (./Culminating-Activity.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 12225 strings out of 469339
- 187014 string characters out of 5466339
- 619784 words of memory out of 5000000
- 40758 multiletter control sequences out of 15000+600000
+ 12274 strings out of 469339
+ 190092 string characters out of 5466339
+ 618817 words of memory out of 5000000
+ 40801 multiletter control sequences out of 15000+600000
  679353 words of font info for 84 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,93p,583b,603s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 89i,8n,93p,583b,599s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtk10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/ProgramData/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtti10.pfb>
-Output written on Culminating-Activity.pdf (17 pages, 366741 bytes).
+Output written on Culminating-Activity.pdf (23 pages, 395839 bytes).
 PDF statistics:
- 452 PDF objects out of 1000 (max. 8388607)
- 399 compressed objects within 4 object streams
- 104 named destinations out of 1000 (max. 500000)
- 430 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 516 PDF objects out of 1000 (max. 8388607)
+ 444 compressed objects within 5 object streams
+ 110 named destinations out of 1000 (max. 500000)
+ 460 words of extra memory for PDF output out of 10000 (max. 10000000)
 
