@@ -2,7 +2,13 @@
 title: "Culminating Activity"
 author: "Tristan, Kiarra, Joshua, Joselito, Rick"
 date: ""
-output: pdf_document
+output: 
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+   - \hyphenpenalty=10000
+   - \exhyphenpenalty=10000
+   - \sloppy
 ---
 
 ```{r, echo=FALSE, include=FALSE}
@@ -29,7 +35,7 @@ library(purrr)      # Functional programming
 library(mice)       # Bayesian Linear Regression imputation
 library(caret)      # Data splitting and pre-processing
 library(car)        # Variance Inflation Factor (VIF)
-library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
+library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan-Godfrey)
 library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
@@ -51,6 +57,8 @@ Provide a concise summary of the study including purpose, methods, results, and 
 &nbsp;&nbsp;&nbsp;&nbsp;This research focuses on examining the effect of missing value handling on improving global sales prediction using Multiple Linear Regression. Specifically, it aims to understand why missing data reduces model performance and how different data cleaning techniques can enhance predictive accuracy. It also highlights the significance of proper data preparation in machine learning and statistical analysis. By identifying effective preprocessing methods, the research can help businesses, researchers, and data analysts develop more reliable prediction models and improve the quality of data-driven decisions in global sales forecasting.
 
 ## Statement of the Problem
+
+&nbsp;&nbsp;&nbsp;&nbsp;This study aims to evaluate the impact of data cleaning and model transformation on the predictive accuracy and reliability of Multiple Linear Regression in estimating global video game sales by addressing the following research questions:
 
 1. What is the effect of missing value handling on improving global sales prediction using Multiple Linear Regression?
 
@@ -82,6 +90,8 @@ Provide a concise summary of the study including purpose, methods, results, and 
 ## Scope and Limitations
 
 &nbsp;&nbsp;&nbsp;&nbsp;This research focuses on predicting global video game sales by comparing two data-handling methods which are deleting missing rows and using the Bayesian Linear Regression imputation. The analysis is specifically performed using Multiple Linear Regression within the R programming environment. The primary goal is to determine which data-handling technique leads to a more accurate and reliable prediction model.
+
+\newpage
 
 # Chapter 2: Review of Related Literature
 
@@ -115,7 +125,7 @@ Provide a concise summary of the study including purpose, methods, results, and 
 
 ## Conceptual Framework
 
-```{r conceptual-framework, echo=FALSE, out.width="80%", fig.align="center"}
+```{r conceptual-framework, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Conceptual Framework of the Study"}
 knitr::include_graphics("Conceptual_Framework.png")
 ```
 
@@ -124,6 +134,8 @@ knitr::include_graphics("Conceptual_Framework.png")
 &nbsp;&nbsp;&nbsp;&nbsp;At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
 
 &nbsp;&nbsp;&nbsp;&nbsp;These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
+
+\newpage
 
 # Chapter 3: Methodology
 
@@ -140,9 +152,9 @@ data_row_count <- nrow(dataset)
 
 &nbsp;&nbsp;&nbsp;&nbsp;The primary analytical framework is Multiple Linear Regression. To ensure the reliability of the regression coefficients and $p$-values, the model is evaluated against the four classical linear regression assumptions:
 
-1. Normality - This refers to the distribution of the residuals. This study utilizes the Kolmogorov-Smirnov test.
+1. Normality - This refers to the distribution of the residuals. This study utilizes the Kolmogorov-Smirnov test to ensure that the error terms follow a normal distribution, which is essential for valid hypothesis testing.
 
-2. Homoscedasticity - It is the spread of your residuals should be the same across all levels of your predicted values. This study utilizes the Breusch-Pagan test; a violation (heteroscedasticity) would suggest that the model’s standard errors are biased.
+2. Homoscedasticity - It is the spread of your residuals should be the same across all levels of your predicted values. This study utilizes the Breusch-Pagan-Godfrey test; a violation (heteroscedasticity) would suggest that the model’s standard errors are biased.
 
 3. Multicollinearity - This occurs when two or more of your independent variables are too highly correlated with each other. This study calculates the Variance Inflation Factor of each predictor to check if there are any high correlation between predictors.
 
@@ -150,7 +162,7 @@ data_row_count <- nrow(dataset)
 
 ## Data Collection
 
-The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings.
+&nbsp;&nbsp;&nbsp;The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings. The following variables are chosen for the model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 set.seed(5)
@@ -175,14 +187,19 @@ data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
 
+data_display <- data_subset
+
+table_column_labels <- c("Sales", "Platform", "Age", "Genre", "CriticScore", "CriticCount", "UserScore", "UserCount", "Rating")
+
 # Show the table before imputation
-knitr::kable(head(data_subset[, 1:4], 6), caption = "First Six Rows of Video Game Sales Data Overview")
-knitr::kable(head(data_subset[, 5:9], 6))
+knitr::kable(head(data_subset, 6),
+             col.names = table_column_labels,
+             caption = "First Six Rows of Video Game Sales Data Overview")
 ```
 
 ## Data Imputation
 
-The dataset have missing values *(NA)*. To address the missing values, the dataset was imputed using a Predictive Mean Matching model.
+&nbsp;&nbsp;&nbsp;&nbsp;The dataset have missing values *(NA)*. To address the missing values, the dataset was imputed using a Predictive Mean Matching model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Predictive Mean Matching (PMM)
@@ -197,52 +214,44 @@ imputed_data <- mice(data_subset,
 data <- complete(imputed_data, 1)
 
 # Show the table after imputation
-knitr::kable(head(data[, 1:4], 6),
+knitr::kable(head(data, 6),
+             col.names = table_column_labels,
              caption = "First Six Rows of the Data After Imputation")
-knitr::kable(head(data[, 5:9], 6))
 ```
 
 ## Variables Description
 
 ### Dependent Variable
 
-- **Global_Sales**: We measure Global_Sales as the dependent variable, which is hypothesized to be influenced by the independent variables of platform popularity, game age, genre, critic scores and counts, user engagement, and content ratings.
+- **Global_Sales**: Sales around the globe.
 
 ### Independent Variables
 
-- **Platform**: May affect Global_Sales because some gaming platforms have larger user bases and stronger market demand than others.
+- **Platform**: Game console.
 
-- **Game_Age**: May influence Global_Sales since newer games often attract more buyers, while older games may experience declining sales over time.
+- **Game_Age**: Age of the game from year of release to the year 2016.
 
-- **Genre**: Can affect Global_Sales because certain game genres are more popular and appealing to players than others.
+- **Genre**: Game type (action, sports, exc.)
 
-- **Critic_Score** May increase Global_Sales because games with higher review scores are more likely to attract consumers.
+- **Critic_Score** Aggregate score compiled by Metacritic staff.
 
-- **Critic_Count**: May affect Global_Sales since games reviewed by more critics usually gain greater visibility and public attention.
+- **Critic_Count**: The number of critics used in coming up with the Criticscore.
 
-- **User_Score** May increase Global_Sales because games with higher review scores from users are more likely to attract more consumers.
+- **User_Score** Score by Metacritic's subscribers.
 
-- **User_Count**: May influence Global_Sales because higher player engagement and feedback often indicate stronger popularity.
+- **User_Count**: Number of users who gave the userscore.
 
-- **Rating**: May affect Global_Sales by determining the target audience size and the accessibility of the game to consumers.
+- **Rating**: The ESRB ratings.
 
 ## Data Analysis Techniques
 
 - **Descriptive Statistics**
-
-  - **Five Number Summary** - Summarizes the overall characteristics of the dataset (minimum, first quartile, median, third quartile, and maximum). This helped identify the skewness in Global_Sales.
-
-  - **Frequency Distribution** - To show the frequency of the categorical variables (Platform, Genre, and Rating). It determines the most prevalent categories in the dataset.
+  
+&nbsp;&nbsp;&nbsp;&nbsp;To analyze the dataset's core characteristics, descriptive statistics were first employed alongside outlier visualization to identify extreme data points that could distort the overall analysis. This was followed by a five-number summary (minimum, first quartile, median, third quartile, and maximum) to provide a comprehensive overview of the data's distribution, which was instrumental in pinpointing significant skewness within the Global_Sales figures. Finally, frequency distributions were used to evaluate categorical variables such as Platform, Genre, and Rating, effectively highlighting the most prevalent categories and trends across the dataset.
 
 - **Inferential Statistics**
-
-  - **Multiple Linear Regression** - The core technique used to model the relationship between multiple predictors (Platform, Game Age, Genre, Critic Score, Critic Count, User Score, User Count, and Rating) and the outcome (Global Sales).
   
-  - **Log-Transformation** - A mathematical transformation applied to the dependent variable ($log(y)$) to stabilize variance and normalize the distribution, addressing the right-skewness identified in the descriptive phase.
-  
-  - **Hypothesis Testing ($p$-values)**: A significance level of $\alpha = 0.05$ was established. Predictors with $p < 0.05$ were considered statistically significant contributors to global sales. Additionally, this technique is utilized in diagnostic checking to validate the model's assumptions. Specifically, for tests of Normality (Kolmogorov-Smirnov), Homoscedasticity (Breusch-Pagan), and Independence (Durbin-Watson), a $p$-value greater than 0.05 is required to fail to reject the null hypothesis, thereby confirming that the model meets the necessary statistical requirements for reliable inference.
-  
-  - **Coefficient of Determination ($R^2$ and Adjusted $R^2$)**: These metrics were used to evaluate the goodness-of-fit, representing the proportion of variance in sales explained by the model. Additionally, it is also applicable for variable selection.
+&nbsp;&nbsp;&nbsp;&nbsp;For the inferential statistics phase, Multiple Linear Regression served as the primary technique to model the relationship between global sales and various predictors, including platform, game age, genre, scores, and ratings. To address the right-skewness observed during the descriptive analysis, a log-transformation was applied to the dependent variable, $log(y)$, to stabilize variance and normalize the distribution. The model’s validity was assessed through hypothesis testing with a significance level of $\alpha = 0.05$; predictors with $p < 0.05$ were deemed significant, while diagnostic tests—such as Kolmogorov-Smirnov for normality, Breusch-Pagan-Godfrey for homoscedasticity, and Durbin-Watson for independence required $p > 0.05$ to confirm the model met all necessary statistical assumptions. Finally, the Coefficient of Determination ($R^2$ and Adjusted $R^2$) was used to evaluate the goodness-of-fit and assist in variable selection, quantifying the proportion of variance in sales successfully explained by the model.
 
 \newpage
 
@@ -250,68 +259,88 @@ knitr::kable(head(data[, 5:9], 6))
 
 ## Descriptive Statistics
 
-```{r summary-table-first-half, echo=FALSE, results='asis'}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Get all numeric columns
 keep_columns <- c("Global_Sales", "Game_Age", "Critic_Score", "Critic_Count", "User_Score", "User_Count")
 sub_data <- data[, keep_columns]
 clean_summary <- as.data.frame(unclass(summary(sub_data)))
+```
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Outlier Detection across all Numerical Predictors"}
+# Render boxplot of numeric columns
+sub_data %>%
+  pivot_longer(everything()) %>%
+  ggplot(aes(x = name, y = value, fill = as.factor(name))) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_wrap(~name, scales = "free") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") +
+  labs(x = NULL, y = NULL) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 10),
+    axis.text.x = element_blank()
+  )
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, summary-table-first-half, results='asis'}
 # Render summary table of numeric columns
 kable(clean_summary, 
       format = "latex", 
       booktabs = TRUE, 
-      caption = "Five Number Summary",
+      caption = "Five Number Summary across all Numeric Predictors",
       position = "!h")
 ```
 
-```{r summary-table-second-half, echo=FALSE, results='asis'}
-# Get all factor columns
-keep_columns <- c("Platform", "Genre", "Rating")
-sub_data <- data[, keep_columns]
-clean_summary <- as.data.frame(unclass(summary(sub_data)))
+&nbsp;&nbsp;&nbsp;&nbsp;The boxplot analysis (Figure 2) reveals a significant disparity in distribution across variable. Global Sales and User Count exhibit severe right-skewness, indicating a market dominated by a small number of high-performing titles. In contrast, the Critic and User Scores follow a more centralized distribution, however, both are prone to negative outliers representing poorly received titles.
 
-# Render summary table of factor columns
-kable(clean_summary, 
-      format = "latex", 
-      booktabs = TRUE,
-      caption = "Frequency Distribution",
-      position = "!h")
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+data_df = data # Used for the categorical variables visualization
 ```
 
-&nbsp;&nbsp;&nbsp;&nbsp;Table 3 and 4 presents the descriptive statistics for both numerical and categorical variables within the dataset. For numerical features such as Global Sales and Critic Scores, the table details the distributional characteristics through measures of central tendency and dispersion. For categorical features (Platform, Genre, and Rating), the summary provides the total observation count and data classification.
+\newpage
 
-## Visualization
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#ggplot(data, aes(x=Variable1, y=Variable2)) +
-#  geom_point() +
-#  theme_minimal()
-
-data_df = data
-
-Age_bar <- ggplot(data_df, aes(x=Game_Age)) + geom_bar(color = "black", fill = "forestgreen") + theme(text = element_text(size=12)) + labs(title = "Games by Game Age", y = "Count", x = "Game Age")
-Age_bar
-
-Critic_Score_hist <- ggplot(data_df, aes(Critic_Score))
-Critic_Score_hist + geom_histogram(binwidth = 4, color = "black",fill = "red") + theme(text = element_text(size=12)) + labs(title = "Games by Critic Score", y = "Count", x = "Critic Scores")
-
-Critic_Count_hist <- ggplot(data_df, aes(Critic_Count))
-Critic_Count_hist + geom_histogram(binwidth = 4, color = "black",fill = "blue") + theme(text = element_text(size=12)) + labs(title = "Games by Critic Count", y = "Count", x = "Critic Count")
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Frequency Distribution of Games across Platforms"}
 Platform_bar <- ggplot(data_df, aes(x=Platform,fill =Platform)) + geom_bar() +
   theme(
     text = element_text(size=12),
+    axis.title.x = element_text(margin = margin(t = 15)), 
+    axis.title.y = element_text(margin = margin(r = 15)),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size=9)
-  ) + labs(title = "Games by Platform", y = "Platform", x = "Genre")
+  ) + labs(title = NULL, y = "Number of Games", x = "Platform")
 Platform_bar
-
-Genre_Bar <- ggplot(data_df, aes(x=Genre,fill =Genre)) + geom_bar() + theme(text = element_text(size=12),axis.text.x=element_text(angle = 90,vjust = 0.4,size=9)) + labs(title = "Games by Genre", y = "Count", x = "Genre")
-Genre_Bar
-
-Rating_bar <- ggplot(data_df, aes(x=Rating,fill =Rating)) + geom_bar() + theme(text = element_text(size=12)) + labs(title = "Games by Rating", y = "Rating", x = "Genre") 
-Rating_bar
-
-#plot(data_df, pch=19, col = "blue")
 ```
+
+&nbsp;&nbsp;&nbsp;&nbsp;The frequency distribution of titles across gaming platforms (Figure 3) reveals that the PlayStation 2 and Nintendo DS are the dominant modalities. Conversely, several platforms such as the 3DO and Sega CD exhibit minimal representation. This disparity suggests a high concentration of data within specific hardware generations, a factor that must be considered to ensure the regression model remains representative of broader industry trends rather than being skewed by high-volume legacy platforms.
+
+\newpage
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Frequency Distribution of Games across Genre"}
+Genre_Bar <- ggplot(data_df, aes(x=Genre,fill =Genre)) + geom_bar() +
+  theme(
+    text = element_text(size=12),
+    axis.title.x = element_text(margin = margin(t = 15)), 
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.text.x=element_text(angle = 90, vjust = 0.5, hjust = 1,size=9)
+  ) + labs(y = "Number of Games", x = "Genre")
+Genre_Bar
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;The frequency distribution of titles across genres (Figure 4) indicates that Action and Sports are the most prevalent categories, comprising a significant portion of the total observations. Conversely, Puzzle and Strategy games represent a smaller segment of the dataset. This variation in genre volume provides a comprehensive basis for analyzing how different game types influence global sales, ensuring that the final regression model accounts for both mainstream and niche market segments.
+
+\newpage
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Frequency Distribution of Games across Rating"}
+Rating_bar <- ggplot(data_df, aes(x=Rating,fill =Rating)) + geom_bar() + 
+  theme(
+    text = element_text(size=12),
+    axis.title.x = element_text(margin = margin(t = 15)), 
+    axis.title.y = element_text(margin = margin(r = 15)),
+    axis.text.x=element_text(angle = 90, vjust = 0.5, hjust = 1,size=9)
+  ) + labs(y = "Number of Games", x = "Rating") 
+Rating_bar
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;The frequency distribution of software ratings (Figure 5) shows that the dataset is primarily comprised of titles rated E (Everyone) and T (Teen). This prevalence reflects the industry's focus on broad-market accessibility. Significant representation is also noted for M (Mature) and E10+ ratings, providing sufficient data for a comparative analysis of age-appropriateness as a predictor of global sales. In contrast, ratings such as AO and EC exhibit negligible frequency, suggesting they represent niche market segments or legacy classifications that may require consolidation during the modeling phase.
 
 \newpage
 
@@ -331,8 +360,17 @@ test.set <- data[-train.index,]
 model <- lm(formula = Global_Sales ~ ., data = train.set)
 
 # Get the clean table
-model_summary <- tidy(model) %>%
-  filter(p.value < 0.05)
+model_summary <- tidy(model) %>% filter(p.value < 0.05) %>%
+  mutate(
+    p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 4)))
+  ) %>%
+  rename(
+    `Predictor` = term,
+    `Estimate` = estimate,
+    `std-error` = std.error,
+    `Statistic` = statistic,
+    `p-value` = p.value
+  )
 
 kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales")
 
@@ -365,94 +403,26 @@ p_value <- ifelse(p_value < 0.001, "< 0.001", paste0("= ", as.character(round(p_
 untransformed_r_squared <- as.numeric(model_summary_display$r.squared)
 ```
 
-## Interpretation
+\newpage 
 
 &nbsp;&nbsp;&nbsp;&nbsp;The multiple linear regression model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(untransformed_r_squared, 4)`). Several platform variables, particularly Game Boy, NES, Wii, and Xbox One, showed strong positive associations with global sales. Critic score and critic count were also significant positive predictors, suggesting that higher professional review ratings and greater review exposure are associated with increased sales. In contrast, genres such as Strategy and Puzzle exhibited negative effects on sales performance. Overall, the findings suggest that platform selection, genre, and review metrics significantly influence global video game sales.
 
-## Outliers, Leverage, and Influential Points
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-which(hatvalues(model) > 0.08)
-
-which(cooks.distance(model) > 1)
-```
-
 ## Diagnostic Checking
 
-### A. Normality
-
-#### Statistical Test
-\
-- **Ho**: the residuals are normally distributed.
-\
-- **Ha**: the residuals are not normally distributed.
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+# 1.) Normality (Kolmogorov-Smirnov Test)
+
 resid_std <- scale(residuals(model)) # mean=0, sd=1
-ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
-d_value = round(ks_test$statistic, 4)
-p_value = ks_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-ks_valid = valid
+ks_test <- ks.test(resid_std, "pnorm")
+ks_valid = ks_test$p.value >= 0.05
 
-# Create clean table of the Kolmogorov-Smirnov Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`D`, ~`p-value`, ~`Status`,
-  "Kolmogorov-Smirnov", d_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
+# 2.) Homoscedasticity (Breusch-Pagan-Godfrey Test)
 
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Kolmogorov-Smirnov Test Results",
-      align = "llll",
-      position = "!h")
-```
+bp_test <- bptest(model)
+bp_valid = bp_test$p.value >= 0.05
 
-Based on the Kolmogorov-Smirnov test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, the residuals are normally distributed."} else {"reject the null hypothesis, therefore, the residuals are not normally distributed."}`
+# 3.) Multicollinearity (Variance Inflation Factor (VIF))
 
-### B. Homoscedasticity
-
-#### Statistical Test
-\
-- **Ho**: Heteroscedasticity is not present.
-\
-- **Ha**: Heteroscedasticity is present.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-bp_test <- bptest(model) # Breusch-Pagan Test
-bp_value = round(bp_test$statistic, 4)
-df_value <- bp_test$parameter
-p_value = bp_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-bp_valid = valid
-
-# Create clean table of the Breusch-Pagan Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`BP`, ~`df`, ~`p-value`, ~`Status`,
-  "Breusch-Pagan", bp_value, df_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
-
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Breusch-Pagan Test Results",
-      align = "lllll",
-      position = "!h")
-```
-
-Based on the Breusch-Pagan test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, Heteroscedasticity is not present."} else {"reject the null hypothesis, therefore, Heteroscedasticity is present."}`
-
-### C. Multicolinearity
-
-- If **VIF > 5** -> Moderate concern.
-- If **VIF > 10** -> Serious multicollinearity.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
 vif_values = as.data.frame(vif(model))
 
 # Create VIF table
@@ -462,67 +432,25 @@ vif_table <- data.frame(
   Status = ifelse(vif_values$`GVIF^(1/(2*Df))` < 5, "Passed", "Violated")
 )
 
-valid = max(vif_table$VIF) < 5
-vif_valid = valid
+vif_valid = max(vif_table$VIF) < 5
 
-# Render the table for PDF
-kable(vif_table, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Variance Inflation Factor (VIF) Results",
-      align = "lll",
-      position = "!h")
-```
+# 4.) Independence (Durbin-Watson Test)
 
-`r if(valid) {"Since there is no high correlation with other independent variables,
-so it does not have a multicollinearity issue."} else {"Since there are some high correlation with other independent variables, it does have a multicollinearity issue."}`
+dw_test = dwtest(model)
+dw_valid = dw_test$p.value >= 0.05
 
-### D. Independence
-
-#### Statistical Test
-\
-- **Ho:** No auto-correlation.
-\
-- **Ha:** There exists auto-correlation.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-dw_test = dwtest(model) # Durbin-Watson Test
-dw_value = round(dw_test$statistic, 4)
-p_value = dw_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-dw_valid = valid
-
-# Create clean table of the Durbin-Watson Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`DW`, ~`p-value`, ~`Status`,
-  "Durbin-Watson", dw_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
-
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Durbin-Watson Test Results",
-      align = "llll",
-      position = "!h")
-```
-
-Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
-
-## Diagnostic Checking Summary
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Create clean table of the diagnostic checking summary
+
 ks_test_result <- tribble(
   ~`Assumptions`, ~`Statistical Test`, ~`Status`,
   "Normality", "Kolmogorov-Smirnov", ifelse(ks_valid, "Passed", "Violated"),
-  "Homoscedasticity", "Breusch-Pagan", ifelse(bp_valid, "Passed", "Violated"),
-  "Multicolinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
+  "Homoscedasticity", "Breusch-Pagan-Godfrey", ifelse(bp_valid, "Passed", "Violated"),
+  "Multicollinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
   "Independence", "Durbin-Watson", ifelse(dw_valid, "Passed", "Violated")
 )
 
 # Render the table for PDF
+
 kable(ks_test_result,
       format = "latex",
       booktabs = TRUE,
@@ -531,20 +459,31 @@ kable(ks_test_result,
       position = "!h")
 ```
 
-&nbsp;&nbsp;&nbsp;&nbsp;The initial diagnostic tests (Table 11) revealed significant violations of normality and homoscedasticity, largely driven by the extreme right-skewness of the Global Sales data. To address this and ensure the validity of our statistical inferences, a logarithmic transformation will be applied to the dependent variable for the model transformation.
+&nbsp;&nbsp;&nbsp;&nbsp;The initial diagnostic tests (Table 6) revealed significant violations of normality and homoscedasticity. These statistical failures are directly attributable to the extreme right-skewness and high-leverage outliers identified in the exploratory phase (Figure 2). To address these violations and stabilize the variance, a logarithmic transformation will be applied to the dependent variable ($y$).
+
+\newpage
 
 ## Model Transformation
 
-The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the baseline model.
+&nbsp;&nbsp;&nbsp;&nbsp;The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the baseline model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
 
 # Get the clean table
-model_summary <- tidy(model) %>%
-  filter(p.value < 0.05)
+model_summary <- tidy(model) %>% filter(p.value < 0.05) %>%
+  mutate(
+    p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 4)))
+  ) %>%
+  rename(
+    `Predictor` = term,
+    `Estimate` = estimate,
+    `std-error` = std.error,
+    `Statistic` = statistic,
+    `p-value` = p.value
+  )
 
-kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales After Transformation")
+kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales After Model Transformation")
 
 # Extract global model metrics
 model_metrics <- glance(model) %>%
@@ -565,7 +504,7 @@ model_metrics <- glance(model) %>%
   )
 
 # Display as a clean table
-kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics After Transformation")
+kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics After Model Transformation")
 
 model_summary_display = summary(model)
 
@@ -573,96 +512,26 @@ f_value <- model_summary_display$fstatistic
 p_value <- pf(f_value[1], f_value[2], f_value[3], lower.tail = FALSE)
 p_value <- ifelse(p_value < 0.001, "< 0.001", paste0("= ", as.character(round(p_value, 4))))
 transformed_r_squared <- as.numeric(model_summary_display$r.squared)
-```
 
-## Interpretation
-
-&nbsp;&nbsp;&nbsp;&nbsp;After the logarithmic transformation, the multiple linear regression model was still statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(transformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(transformed_r_squared, 4)`), which is an improvement from the untransformed model (R² = `r round(untransformed_r_squared, 4)`).
-
-## Outliers, Leverage, and Influential Points
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-which(hatvalues(model) > 0.08)
-
-which(cooks.distance(model)>1)
+critic_score_estimate = round(coef(model_summary_display)["Critic_Score", "Estimate"] * 100, 2)
 ```
 
 ## Diagnostic Checking
 
-### A. Normality
-
-#### Statistical Test
-\
-- **Ho**: the residuals are normally distributed.
-\
-- **Ha**: the residuals are not normally distributed.
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+# 1.) Normality (Kolmogorov-Smirnov Test)
+
 resid_std <- scale(residuals(model)) # mean=0, sd=1
-ks_test <- ks.test(resid_std, "pnorm") # Kolmogorov-Smirnov Test
-d_value = round(ks_test$statistic, 4)
-p_value = ks_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-ks_valid = valid
+ks_test <- ks.test(resid_std, "pnorm")
+ks_valid = ks_test$p.value >= 0.05
 
-# Create clean table of the Kolmogorov-Smirnov Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`D`, ~`p-value`, ~`Status`,
-  "Kolmogorov-Smirnov", d_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
+# 2.) Homoscedasticity (Breusch-Pagan-Godfrey Test)
 
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Kolmogorov-Smirnov Test Results After Transformation",
-      align = "llll",
-      position = "!h")
-```
+bp_test <- bptest(model)
+bp_valid = bp_test$p.value >= 0.05
 
-Based on the Kolmogorov-Smirnov test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, the residuals are normally distributed."} else {"reject the null hypothesis, therefore, the residuals are not normally distributed."}`
+# 3.) Multicollinearity (Variance Inflation Factor (VIF))
 
-### B. Homoscedasticity
-
-#### Statistical Test
-\
-- **Ho**: Heteroscedasticity is not present.
-\
-- **Ha**: Heteroscedasticity is present.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-bp_test <- bptest(model) # Breusch-Pagan Test
-bp_value = round(bp_test$statistic, 4)
-df_value <- bp_test$parameter
-p_value = bp_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-bp_valid = valid
-
-# Create clean table of the Breusch-Pagan Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`BP`, ~`df`, ~`p-value`, ~`Status`,
-  "Breusch-Pagan", bp_value, df_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
-
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Breusch-Pagan Test Results After Transformation",
-      align = "lllll",
-      position = "!h")
-```
-
-Based on the Breusch-Pagan test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, Heteroscedasticity is not present."} else {"reject the null hypothesis, therefore, Heteroscedasticity is present."}`
-
-### C. Multicolinearity
-
-- If **VIF > 5** -> Moderate concern.
-- If **VIF > 10** -> Serious multicollinearity.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
 vif_values = as.data.frame(vif(model))
 
 # Create VIF table
@@ -672,80 +541,38 @@ vif_table <- data.frame(
   Status = ifelse(vif_values$`GVIF^(1/(2*Df))` < 5, "Passed", "Violated")
 )
 
-valid = max(vif_table$VIF) < 5
-vif_valid = valid
+vif_valid = max(vif_table$VIF) < 5
 
-# Render the table for PDF
-kable(vif_table, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Variance Inflation Factor (VIF) Results After Transformation",
-      align = "lll",
-      position = "!h")
-```
+# 4.) Independence (Durbin-Watson Test)
 
-`r if(valid) {"Since there is no high correlation with other independent variables,
-so it does not have a multicollinearity issue."} else {"Since there are some high correlation with other independent variables, it does have a multicollinearity issue."}`
+dw_test = dwtest(model)
+dw_valid = dw_test$p.value >= 0.05
 
-### D. Independence
-
-#### Statistical Test
-\
-- **Ho:** No auto-correlation.
-\
-- **Ha:** There exists auto-correlation.
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-dw_test = dwtest(model) # Durbin-Watson Test
-dw_value = round(dw_test$statistic, 4)
-p_value = dw_test$p.value
-p_value_display = ifelse(p_value < 0.001, "< 0.001", round(p_value, 4))
-valid = p_value >= 0.05
-dw_valid = valid
-
-# Create clean table of the Durbin-Watson Test results
-ks_test_result <- tribble(
-  ~`Statistical Test`, ~`DW`, ~`p-value`, ~`Status`,
-  "Durbin-Watson", dw_value, p_value_display, ifelse(valid, "Passed", "Violated")
-)
-
-# Render the table for PDF
-kable(ks_test_result, 
-      format = "latex", 
-      booktabs = TRUE, 
-      caption = "Durbin-Watson Test Results After Transformation",
-      align = "llll",
-      position = "!h")
-```
-
-Based on the Durbin-Watson test, the p-value is `r p_value_display`. We `r if(valid) {"fail to reject the null hypothesis, therefore, there are no auto-correlation."} else {"reject the null hypothesis, therefore, there exists auto-correlation."}`
-
-## Diagnostic Checking Summary
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # Create clean table of the diagnostic checking summary
+
 ks_test_result <- tribble(
   ~`Assumptions`, ~`Statistical Test`, ~`Status`,
   "Normality", "Kolmogorov-Smirnov", ifelse(ks_valid, "Passed", "Violated"),
-  "Homoscedasticity", "Breusch-Pagan", ifelse(bp_valid, "Passed", "Violated"),
-  "Multicolinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
+  "Homoscedasticity", "Breusch-Pagan-Godfrey", ifelse(bp_valid, "Passed", "Violated"),
+  "Multicollinearity", "Variance Inflation Factor", ifelse(vif_valid, "Passed", "Violated"),
   "Independence", "Durbin-Watson", ifelse(dw_valid, "Passed", "Violated")
 )
 
 # Render the table for PDF
+
 kable(ks_test_result,
       format = "latex",
       booktabs = TRUE,
-      caption = "Diagnostic Checking Summary After Transformation",
+      caption = "Diagnostic Checking Summary After Model Transformation",
       align = "llll",
       position = "!h")
 ```
 
-Discuss findings in paragraph form.
-
-## Variable Selection
+&nbsp;&nbsp;&nbsp;&nbsp;The most significant improvement is noted in the Normality assumption. The Kolmogorov-Smirnov test, which was previously violated due to extreme right-skewness and high-leverage outliers in the raw sales data (Figure 2), now yields a "Passed" status. However, the Breusch-Pagan-Godfrey test indicates that Homoscedasticity remains violated. This suggests that while the distribution is more normal, the variance of the residuals still changes across different levels of the independent variables. Consequently, while the model’s coefficients remain unbiased for identifying trends, the results should be interpreted with caution regarding their statistical precision.
 
 ## Interpretation
+
+&nbsp;&nbsp;&nbsp;&nbsp;After the logarithmic transformation, the final regression analysis (Table 7) demonstrates that Critic Scores and Game Age are significant positive drivers of commercial success. Specifically, a single-point improvement in critic sentiment correlates with a `r critic_score_estimate`% increase in global sales, validating the industry’s reliance on high review scores for financial growth. Furthermore, the model reveals substantial variations across platforms and genres. While legacy platforms like the Game Boy and PlayStation 3 show strong historical sales volume, niche genres such as Strategy and Adventure tend to underperform in total sales compared to mainstream counterparts. Overall, the transformed model explains approximately `r round(transformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(transformed_r_squared, 4)`), which is an improvement from the untransformed model (R² = `r round(untransformed_r_squared, 4)`).
 
 \newpage
 
@@ -805,7 +632,7 @@ library(purrr)      # Functional programming
 library(mice)       # Bayesian Linear Regression imputation
 library(caret)      # Data splitting and pre-processing
 library(car)        # Variance Inflation Factor (VIF)
-library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan)
+library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan-Godfrey)
 library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
@@ -871,3 +698,8 @@ knitr::kable(head(data[, 1:4], 6),
              caption = "First Six Rows of the Data After Imputation")
 knitr::kable(head(data[, 5:9], 6))
 ```
+
+\newpage
+
+## Appendix B: Diagnostic Checking Results
+
