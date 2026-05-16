@@ -306,7 +306,7 @@ Platform_bar <- ggplot(data_df, aes(x=Platform,fill =Platform)) + geom_bar() +
 Platform_bar
 ```
 
-&nbsp;&nbsp;&nbsp;&nbsp;The frequency distribution of titles across gaming platforms (Figure 3) reveals that the PlayStation 2 and Nintendo DS are the dominant modalities. Conversely, several platforms such as the 3DO and Sega CD exhibit minimal representation. This disparity suggests a high concentration of data within specific hardware generations, a factor that must be considered to ensure the regression model remains representative of broader industry trends rather than being skewed by high-volume legacy platforms.
+&nbsp;&nbsp;&nbsp;&nbsp;The frequency distribution of titles across gaming platforms (Figure 3) reveals that the PlayStation 2 and Nintendo DS are the dominant modalities. Conversely, several platforms such as the 3DO and Sega CD (SCD) exhibit minimal representation. This disparity suggests a high concentration of data within specific hardware generations, a factor that must be considered to ensure the regression model remains representative of broader industry trends rather than being skewed by high-volume legacy platforms.
 
 \newpage
 
