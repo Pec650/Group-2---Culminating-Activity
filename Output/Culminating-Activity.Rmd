@@ -40,7 +40,7 @@ library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
 library(knitr)      # Better summary table
-library(broom)
+library(broom)      # For the tidy() function of the model summary
 
 set.seed(5)
 ```
@@ -412,7 +412,7 @@ untransformed_r_squared <- as.numeric(model_summary_display$r.squared)
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # 1.) Normality (Kolmogorov-Smirnov Test)
 
-resid_std <- scale(residuals(model)) # mean=0, sd=1
+resid_std <- scale(residuals(model))
 ks_test <- ks.test(resid_std, "pnorm")
 ks_valid = ks_test$p.value >= 0.05
 
@@ -468,10 +468,10 @@ kable(ks_test_result,
 &nbsp;&nbsp;&nbsp;&nbsp;The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the baseline model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
+log_model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
 
 # Get the clean table
-model_summary <- tidy(model) %>% filter(p.value < 0.05) %>%
+model_summary <- tidy(log_model) %>% filter(p.value < 0.05) %>%
   mutate(
     p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 4)))
   ) %>%
@@ -486,7 +486,7 @@ model_summary <- tidy(model) %>% filter(p.value < 0.05) %>%
 kable(model_summary, digits = 4, caption = "Significant Predictors of Global Sales After Model Transformation")
 
 # Extract global model metrics
-model_metrics <- glance(model) %>%
+model_metrics <- glance(log_model) %>%
   select(r.squared, adj.r.squared, sigma, statistic, p.value) %>%
   mutate(
     r.squared = round(r.squared, 4),
@@ -506,7 +506,7 @@ model_metrics <- glance(model) %>%
 # Display as a clean table
 kable(model_metrics, digits = 4, caption = "Overall Model Fit Statistics After Model Transformation")
 
-model_summary_display = summary(model)
+model_summary_display = summary(log_model)
 
 f_value <- model_summary_display$fstatistic
 p_value <- pf(f_value[1], f_value[2], f_value[3], lower.tail = FALSE)
@@ -521,18 +521,18 @@ critic_score_estimate = round(coef(model_summary_display)["Critic_Score", "Estim
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 # 1.) Normality (Kolmogorov-Smirnov Test)
 
-resid_std <- scale(residuals(model)) # mean=0, sd=1
+resid_std <- scale(residuals(log_model))
 ks_test <- ks.test(resid_std, "pnorm")
 ks_valid = ks_test$p.value >= 0.05
 
 # 2.) Homoscedasticity (Breusch-Pagan-Godfrey Test)
 
-bp_test <- bptest(model)
+bp_test <- bptest(log_model)
 bp_valid = bp_test$p.value >= 0.05
 
 # 3.) Multicollinearity (Variance Inflation Factor (VIF))
 
-vif_values = as.data.frame(vif(model))
+vif_values = as.data.frame(vif(log_model))
 
 # Create VIF table
 vif_table <- data.frame(
@@ -545,7 +545,7 @@ vif_valid = max(vif_table$VIF) < 5
 
 # 4.) Independence (Durbin-Watson Test)
 
-dw_test = dwtest(model)
+dw_test = dwtest(log_model)
 dw_valid = dw_test$p.value >= 0.05
 
 # Create clean table of the diagnostic checking summary
@@ -580,11 +580,29 @@ kable(ks_test_result,
 
 ## Conclusion
 
-Summarize key findings.
+&nbsp;&nbsp;&nbsp;&nbsp;This study investigated the effect of missing value handling on improving global video game sales prediction using Multiple Linear Regression. Using the Video Game Sales dataset from Kaggle, comprising over 16,000 entries, the analysis compared model performance before and after applying data preprocessing and model transformation techniques.
+
+&nbsp;&nbsp;&nbsp;&nbsp;The results confirmed that missing data, when left unaddressed, negatively impact the reliability of predictive models. After applying Predictive Mean Matching (PMM) imputation to handle missing values, the dataset was used to fit a Multiple Linear Regression model. The initial model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`) and explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in global sales (R² = `r round(untransformed_r_squared, 4)`). However, diagnostic testing revealed violations of normality and homoscedasticity, indicating that the raw model was insufficient for reliable inference.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Following a logarithmic transformation of the dependent variable, model performance improved notably. The transformed model achieved an R² of `r round(transformed_r_squared, 4)`, explaining approximately `r round(transformed_r_squared * 10, 2)`% of the variance in global sales, and successfully passed the normality assumption under the Kolmogorov-Smirnov test. Key predictors of global sales included platform, game age, critic score, critic count, user score, user count, genre, and ESRB rating. Notably, critic score and game age were found to be significant positive drivers of commercial success, while genres such as Strategy, Puzzle, and Adventure were associated with lower global sales.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Overall, the findings affirm that proper missing value handling and data preprocessing are essential steps in building more accurate and reliable predictive models for global sales forecasting.
 
 ## **Recommendations**
 
-Provide practical suggestions
+Based on the findings and limitations of this study, the following recommendations are proposed for future research:
+
+- Explore Alternative Imputation Methods
+
+&nbsp;&nbsp;&nbsp;&nbsp;This study employed Predictive Mean Matching (PMM) as the imputation strategy for handling missing values. Future studies are encouraged to explore and compare other imputation techniques, such as Bayesian Linear Regression imputation, K-Nearest Neighbors (KNN) imputation, or Multiple Imputation by Chained Equations (MICE) with different method configurations. Comparing these approaches may yield further improvements in data quality and, consequently, in model predictive accuracy.
+
+- Explore Alternative Model Transformations
+
+&nbsp;&nbsp;&nbsp;&nbsp;While the logarithmic transformation applied in this study improved normality, the homoscedasticity assumption remained violated in the final model. Future studies should explore other transformation techniques, such as square root transformation, Box-Cox transformation, or the use of Weighted Least Squares (WLS) regression, to determine whether these alternatives can produce a model that fully satisfies all four classical linear regression assumptions and yields more statistically sound results.
+
+- Incorporate Additional Predictors
+
+&nbsp;&nbsp;&nbsp;&nbsp;The final transformed model explained only approximately 30.18% of the variance in global video game sales, suggesting that other factors not present in the dataset—such as marketing expenditure, franchise popularity, online reviews from social media, or regional pricing—may also significantly influence sales outcomes. Future research could benefit from enriching the dataset with such variables to improve overall model explanatory power.
 
 \newpage
 
@@ -622,6 +640,7 @@ Statistical Consulting Centre, University of Melbourne. (n.d.). *Missing data.* 
 ```{r, eval=FALSE}
 # === R LIBRARIES ===
 
+# Library
 library(RKaggle)    # Access Kaggle
 library(readr)      # File reading
 library(dplyr)      # Data manipulation
@@ -637,6 +656,7 @@ library(olsrr)      # Comprehensive OLS regression diagnostics
 library(ggplot2)    # Main plotting engine
 library(corrplot)   # Correlation matrices
 library(knitr)      # Better summary table
+library(broom)      # For the tidy() function of the model summary
 
 set.seed(5)
 
@@ -645,8 +665,7 @@ set.seed(5)
 # Get data from Kaggle
 dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv")
 
-# Get data row count
-data_row_count <- nrow(dataset)
+# === DATA CLEANING ===
 
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
@@ -673,14 +692,12 @@ keep_columns <- c("Global_Sales",
 # Overwrite the data with only those columns
 data_subset <- dataset[, keep_columns]
 
+# Convert categorical variables to factor
 data_subset$Platform <- as.factor(data_subset$Platform)
 data_subset$Genre <- as.factor(data_subset$Genre)
 data_subset$Rating <- as.factor(data_subset$Rating)
 
-# Show the table before imputation
-knitr::kable(head(data_subset[, 1:4], 6),
-             caption = "First Six Rows of Video Game Sales Data Overview")
-knitr::kable(head(data_subset[, 5:9], 6))
+# === DATA IMPUTATION ===
 
 # Predictive Mean Matching (PMM)
 imputed_data <- mice(data_subset, 
@@ -693,13 +710,121 @@ imputed_data <- mice(data_subset,
 # Complete the dataset
 data <- complete(imputed_data, 1)
 
-# Show the table after imputation
-knitr::kable(head(data[, 1:4], 6),
-             caption = "First Six Rows of the Data After Imputation")
-knitr::kable(head(data[, 5:9], 6))
+# 70 : 30 RATIO
+train.size <- floor(0.7*nrow(data))
+train.index <- sample(1:nrow(data),train.size, replace = F)
+train.set <- data[train.index,]
+test.set <- data[-train.index,]
+
+# === MULTILINEAR REGRESSION MODEL ===
+
+model <- lm(formula = Global_Sales ~ ., data = train.set)
+
+# Show summary
+summary(model)
+
+# === DIAGNOSTIC CHECKING ===
+
+# 1.) Normality (Kolmogorov-Smirnov Test)
+resid_std <- scale(residuals(model))
+ks_test <- ks.test(resid_std, "pnorm")
+
+# 2.) Homoscedasticity (Breusch-Pagan-Godfrey Test)
+bptest(model)
+
+# 3.) Multicollinearity (Variance Inflation Factor (VIF))
+vif(model)
+
+# 4.) Independence (Durbin-Watson Test)
+dw_test = dwtest(model)
+
+# === MULTILINEAR REGRESSION MODEL WITH LOGARITHMIC TRANSFORMATION ===
+
+# Logarithmic Model: log(y)
+log_model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
+
+# Show summary
+summary(log_model)
+
+# === DIAGNOSTIC CHECKING ===
+
+# 1.) Normality (Kolmogorov-Smirnov Test)
+resid_std <- scale(residuals(log_model))
+ks_test <- ks.test(resid_std, "pnorm")
+
+# 2.) Homoscedasticity (Breusch-Pagan-Godfrey Test)
+bptest(log_model)
+
+# 3.) Multicollinearity (Variance Inflation Factor (VIF))
+vif(log_model)
+
+# 4.) Independence (Durbin-Watson Test)
+dw_test = dwtest(log_model)
 ```
 
 \newpage
 
 ## Appendix B: Diagnostic Checking Results
 
+### Model Before Logarithmic Model Transformation
+```{r}
+model <- lm(formula = Global_Sales ~ ., data = train.set)
+summary(model)
+```
+
+#### 1. Normality
+```{r}
+# Kolmogorov-Smirnov Test
+resid_std <- scale(residuals(model))
+print(ks.test(resid_std, "pnorm"))
+```
+
+#### 2. Homoscedasticity
+```{r}
+# Breusch-Pagan-Godfrey Test
+print(bptest(model))
+```
+
+#### 3. Multicollinearity
+```{r}
+# Variance Inflation Factor (VIF)
+print(vif(model))
+```
+
+#### 4. Independence
+```{r}
+# Durbin-Watson Test
+print(dwtest(model))
+```
+
+### Model After Logarithmic Model Transformation
+```{r}
+# Logarithmic Model: log(y)
+log_model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
+summary(log_model)
+```
+
+#### 1. Normality
+```{r}
+# Kolmogorov-Smirnov Test
+resid_std <- scale(residuals(log_model))
+print(ks.test(resid_std, "pnorm"))
+```
+
+#### 2. Homoscedasticity
+```{r}
+# Breusch-Pagan-Godfrey Test
+print(bptest(log_model))
+```
+
+#### 3. Multicollinearity
+```{r}
+# Variance Inflation Factor (VIF)
+print(vif(log_model))
+```
+
+#### 4. Independence
+```{r}
+# Durbin-Watson Test
+print(dwtest(log_model))
+```
