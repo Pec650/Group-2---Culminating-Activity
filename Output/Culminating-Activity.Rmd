@@ -41,7 +41,7 @@ set.seed(5)
 
 # Abstract
 
-The rapid growth of the global video game industry makes accurate sales forecasting crucial for strategic development. This study investigates how different missing data imputation strategies and model transformation impact the predictive performance of Multiple Linear Regression models when forecasting global sales. Utilizing a dataset of over 16,000 games, a quantitative research design was employed. Data preprocessing involved handling missing values via Predictive Mean Matching (PMM) and applying a logarithmic transformation to address right-skewness. The findings revealed that while the untransformed multiple linear regression model was statistically significant ($F = 61.1118, p < 0.001$), it explained 21.43% of the variance ($R^2 = 0.2143$) and severely violated the assumptions of normality and homoscedasticity due to extreme right-skewness. Applying a logarithmic transformation resolved the normality violation under the Kolmogorov-Smirnov test and increased the model's explanatory power to 30.18% ($R^2 = 0.3018$), proving that critic scores and game age are significant positive drivers of sales despite residual homoscedasticity remaining violated. Based on the findings and limitations, future research should explore alternative imputation methods, model transformations, and incorporate additional predictors.
+The rapid growth of the global video game industry makes accurate sales forecasting crucial for strategic development. This study investigates how different missing data imputation strategies and model transformation impact the predictive performance of Multiple Linear Regression models when forecasting global sales. Utilizing a dataset of over 16,000 games, a quantitative research design was employed. Data preprocessing involved handling missing values via Predictive Mean Matching (PMM) and applying a logarithmic transformation to address right-skewness. The findings revealed that while the untransformed multiple linear regression model was statistically significant ($F = 61.0369, p < 0.001$), it explained 21.41% of the variance ($R^2 = 0.2141$) and severely violated the assumptions of normality and homoscedasticity due to extreme right-skewness. Applying a logarithmic transformation resolved the normality violation under the Kolmogorov-Smirnov test and increased the model's explanatory power to 30.47% ($R^2 = 0.3047$), proving that critic scores and game age are significant positive drivers of sales despite residual homoscedasticity remaining violated. Based on the findings and limitations, future research should explore alternative imputation methods, model transformations, and incorporate additional predictors.
 
 # Chapter 1: Introduction
 
@@ -94,7 +94,7 @@ The rapid growth of the global video game industry makes accurate sales forecast
 
 &nbsp;&nbsp;&nbsp;&nbsp;In a study focused specifically on video game sales data from Kaggle, Affan et al. (2024) developed a machine learning-based sales prediction model using several regression algorithms. Their model made use of regression algorithms, including Linear Regression, Ridge Regression, and Gradient Boosting Regressor, to forecast worldwide video game sales based on variables such as genre, platform, publishers, critic reviews, and user ratings. Their work demonstrates that the same video game sales dataset used in this study has been applied in prior research, validating its academic relevance.
 
-&nbsp;&nbsp;&nbsp;&nbsp;Separately, a study on predicting video game sales using supervised learning from the same Kaggle dataset highlighted the impact of missing data on model outcomes. After downloading the dataset, the researcher dropped rows with empty values or filled in missing values to standardize the columns before applying regression modeling, noting that the dataset contained missing score fields for some video games, which posed challenges to prediction reliability. This finding directly parallels the core concern of this research, that unhandled missing data undermines prediction accuracy. Du (2025).
+&nbsp;&nbsp;&nbsp;&nbsp;A separate study by Du (2025) on predicting video game sales using supervised learning from the same Kaggle dataset highlighted the impact of missing data on model outcomes. After downloading the dataset, the researcher dropped rows with empty values or filled in missing values to standardize the columns before applying regression modeling, noting that the dataset contained missing score fields for some video games, which posed challenges to prediction reliability. This finding directly parallels the core concern of this research, that unhandled missing data undermines prediction accuracy.
 
 &nbsp;&nbsp;&nbsp;&nbsp;Ahmad et al. (2024) conducted a comprehensive review of machine learning applications specifically for missing value imputation. Their analysis sought to enhance researchers' understanding of MVI methods and facilitate the development of robust interventions in data preprocessing for data analytics, elucidating the strengths and limitations of different ML algorithms in imputing missing values across different types of data. This reinforces the idea that the choice of imputation technique has measurable consequences for downstream model performance.
 
@@ -128,7 +128,7 @@ knitr::include_graphics("Conceptual_Framework.png")
 
 &nbsp;&nbsp;&nbsp;&nbsp;At the start of the research process, the raw datasets, primarily consisting of sales data records, are aggregated into the Input Phase. The Data Collection procedures inherent to the source influence the initial integrity of this data, essential to determining the mechanism of missing records. Afterwards, the raw data undergoes Data Preprocessing. Missing Value Imputation (MVI) and Data Cleaning procedures are performed to eliminate and mitigate the impact of data loss and satisfy the assumptions of linear modeling. 
 
-&nbsp;&nbsp;&nbsp;&nbsp;These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variable, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
+&nbsp;&nbsp;&nbsp;&nbsp;These refined inputs are sent to the Predictive Model, utilizing the Multiple Linear Regression model and Data Transformation techniques which will be discussed further in the methodology of this paper. Data Categories defined in the dataset, such as platform and genre, are utilized as control variables, taken into account to ensure the model’s validity and scrutinize market biases. Once all processes are finished, results of the analysis are printed, presented and evaluated through the lens of model significance and accuracy of variable forecasting, especially determining and confirming the reliability of the model in predicting global video game sales.
 
 \newpage
 
@@ -150,7 +150,7 @@ knitr::include_graphics("Conceptual_Framework.png")
 
 ## Data Collection
 
-&nbsp;&nbsp;&nbsp;The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings. The following variables are chosen for the model.
+&nbsp;&nbsp;&nbsp;The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi  (https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings). The following variables are chosen for the model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Get data from Kaggle using RKaggle
@@ -165,7 +165,7 @@ set.seed(5)
 
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
-dataset$Year_of_Release <- 2016 - as.numeric(dataset$Year_of_Release)
+dataset$Year_of_Release <- 2020 - as.numeric(dataset$Year_of_Release)
 names(dataset)[3] <- "Game_Age"
 names(dataset)[12] <- "Global_Sales"
 
@@ -225,7 +225,7 @@ knitr::kable(head(data, 6),
 
 - **Platform**: Game console.
 
-- **Game_Age**: Age of the game from year of release to the year 2016.
+- **Game_Age**: Age of the game from year of release to the year 2020.
 
 - **Genre**: Game type (action, sports, etc.)
 
@@ -233,7 +233,7 @@ knitr::kable(head(data, 6),
 
 - **Critic_Count**: The number of critics used in coming up with the Criticscore.
 
-- **User_Score** Score by Metacritic's subscribers.
+- **User_Score**: Score by Metacritic's subscribers.
 
 - **User_Count**: Number of users who gave the userscore.
 
@@ -287,7 +287,7 @@ kable(clean_summary,
       position = "!h")
 ```
 
-&nbsp;&nbsp;&nbsp;&nbsp;The boxplot analysis (Figure 2) reveals a significant disparity in distribution across variable. Global Sales and User Count exhibit severe right-skewness, indicating a market dominated by a small number of high-performing titles. In contrast, the Critic and User Scores follow a more centralized distribution, however, both are prone to negative outliers representing poorly received titles.
+&nbsp;&nbsp;&nbsp;&nbsp;The boxplot analysis (Figure 2) reveals a significant disparity in distribution across variables. Global Sales and User Count exhibit severe right-skewness, indicating a market dominated by a small number of high-performing titles. In contrast, the Critic and User Scores follow a more centralized distribution, however, both are prone to negative outliers representing poorly received titles.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_df = data # Used for the categorical variables visualization
@@ -401,7 +401,7 @@ untransformed_r_squared <- as.numeric(model_summary_display$r.squared)
 
 \newpage 
 
-&nbsp;&nbsp;&nbsp;&nbsp;The multiple linear regression model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(untransformed_r_squared, 4)`). Several platform variables, particularly Game Boy, NES, Wii, and Xbox One, showed strong positive associations with global sales. Critic score and critic count were also significant positive predictors, suggesting that higher professional review ratings and greater review exposure are associated with increased sales. In contrast, genres such as Strategy and Puzzle exhibited negative effects on sales performance. Overall, the findings suggest that platform selection, genre, and review metrics significantly influence global video game sales.
+&nbsp;&nbsp;&nbsp;&nbsp;The multiple linear regression model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`), indicating that the selected predictors collectively explain variation in global video game sales. The model explained approximately `r round(untransformed_r_squared * 100, 2)`% of the variance in sales (R² = `r round(untransformed_r_squared, 4)`). Several platform variables, particularly Game Boy, NES, Wii, and Xbox One, showed strong positive associations with global sales. Critic score and critic count were also significant positive predictors, suggesting that higher professional review ratings and greater review exposure are associated with increased sales. In contrast, genres such as Strategy and Puzzle exhibited negative effects on sales performance. Overall, the findings suggest that platform selection, genre, and review metrics significantly influence global video game sales.
 
 ## Diagnostic Checking
 
@@ -461,7 +461,7 @@ kable(ks_test_result,
 
 ## Model Transformation
 
-&nbsp;&nbsp;&nbsp;&nbsp;The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the baseline model.
+&nbsp;&nbsp;&nbsp;&nbsp;The model is transformed using a Logarithmic model. The following are significant predictors and the overall goodness-of-fit metrics for the transformed logarithmic model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 log_model <- lm(formula = log(Global_Sales) ~ ., data = train.set)
@@ -578,7 +578,7 @@ kable(ks_test_result,
 
 &nbsp;&nbsp;&nbsp;&nbsp;This study investigated the effect of missing value handling on improving global video game sales prediction using Multiple Linear Regression. Using the Video Game Sales dataset from Kaggle, comprising over 16,000 entries, the analysis compared model performance before and after applying data preprocessing and model transformation techniques.
 
-&nbsp;&nbsp;&nbsp;&nbsp;The results confirmed that missing data, when left unaddressed, negatively impact the reliability of predictive models. After applying Predictive Mean Matching (PMM) imputation to handle missing values, the dataset was used to fit a Multiple Linear Regression model. The initial model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`) and explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in global sales (R² = `r round(untransformed_r_squared, 4)`). However, diagnostic testing revealed violations of normality and homoscedasticity, indicating that the raw model was insufficient for reliable inference.
+&nbsp;&nbsp;&nbsp;&nbsp;The results confirmed that missing data, when left unaddressed, negatively impact the reliability of predictive models. After applying Predictive Mean Matching (PMM) imputation to handle missing values, the dataset was used to fit a Multiple Linear Regression model. The initial model was statistically significant (F = `r round(summary(model)$fstatistic[1], 4)`, p `r p_value`) and explained approximately `r round(untransformed_r_squared * 100, 2)`% of the variance in global sales (R² = `r round(untransformed_r_squared, 4)`). However, diagnostic testing revealed violations of normality and homoscedasticity, indicating that the raw model was insufficient for reliable inference.
 
 &nbsp;&nbsp;&nbsp;&nbsp;Following a logarithmic transformation of the dependent variable, model performance improved notably. The transformed model achieved an R² of `r round(transformed_r_squared, 4)`, explaining approximately `r round(transformed_r_squared * 100, 2)`% of the variance in global sales, and successfully passed the normality assumption under the Kolmogorov-Smirnov test. Key predictors of global sales included platform, game age, critic score, critic count, user score, user count, genre, and ESRB rating. Notably, critic score and game age were found to be significant positive drivers of commercial success, while genres such as Strategy, Puzzle, and Adventure were associated with lower global sales.
 
@@ -590,7 +590,7 @@ Based on the findings and limitations of this study, the following recommendatio
 
 - Explore Alternative Imputation Methods
 
-&nbsp;&nbsp;&nbsp;&nbsp;This study employed Predictive Mean Matching (PMM) as the imputation strategy for handling missing values. Future studies are encouraged to explore and compare other imputation techniques, such as Predictive Mean Matching (PMM) imputation, K-Nearest Neighbors (KNN) imputation, or Multiple Imputation by Chained Equations (MICE) with different method configurations. Comparing these approaches may yield further improvements in data quality and, consequently, in model predictive accuracy.
+&nbsp;&nbsp;&nbsp;&nbsp;This study employed Predictive Mean Matching (PMM) as the imputation strategy for handling missing values. Future studies are encouraged to explore and compare other imputation techniques, such as K-Nearest Neighbors (KNN) imputation, or Multiple Imputation by Chained Equations (MICE) with different method configurations. Comparing these approaches may yield further improvements in data quality and, consequently, in model predictive accuracy.
 
 - Explore Alternative Model Transformations
 
@@ -598,7 +598,7 @@ Based on the findings and limitations of this study, the following recommendatio
 
 - Incorporate Additional Predictors
 
-&nbsp;&nbsp;&nbsp;&nbsp;The final transformed model explained only approximately 30.18% of the variance in global video game sales, suggesting that other factors not present in the dataset—such as marketing expenditure, franchise popularity, online reviews from social media, or regional pricing—may also significantly influence sales outcomes. Future research could benefit from enriching the dataset with such variables to improve overall model explanatory power.
+&nbsp;&nbsp;&nbsp;&nbsp;The final transformed model explained only approximately `r round(transformed_r_squared * 100, 2)`% of the variance in global video game sales, suggesting that other factors not present in the dataset—such as marketing expenditure, franchise popularity, online reviews from social media, or regional pricing—may also significantly influence sales outcomes. Future research could benefit from enriching the dataset with such variables to improve overall model explanatory power.
 
 \newpage
 
@@ -667,7 +667,7 @@ dataset <- RKaggle::get_dataset(url) %>%
 
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
-dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
+dataset$Year_of_Release <- 2020 - dataset$Year_of_Release
 names(dataset)[3] <- "Game_Age"
 names(dataset)[12] <- "Global_Sales"
 
