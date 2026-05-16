@@ -1,7 +1,11 @@
 ---
 title: "Culminating Activity"
-author: "Tristan, Kiarra, Joshua, Joselito, Rick"
-date: ""
+author: |
+  | Ebao, Miguel Tristan Sebastian Y.
+  | Estrada, Kiarra Ezrha P.
+  | Juinio, Joshua Jacques Anthony L.
+  | Yap, Joselito Jr. L.
+  | Yuliongsiu, Rick Bryson N.
 output: 
   pdf_document:
     latex_engine: xelatex
@@ -10,16 +14,6 @@ header-includes:
    - \exhyphenpenalty=10000
    - \sloppy
 ---
-
-```{r, echo=FALSE, include=FALSE}
-"
-Ebao, Miguel Tristan Sebastian Y.
-Estrada, Kiarra Ezrha P.
-Juinio, Joshua Jacques Anthony L.
-Yap, Joselito Jr. L.
-Yuliongsiu, Rick Bryson N.
-"
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -139,13 +133,6 @@ knitr::include_graphics("Conceptual_Framework.png")
 
 # Chapter 3: Methodology
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv",sep=",",na.strings=c(""," ","NA","N/A"))
-
-# Get data row count
-data_row_count <- nrow(dataset)
-```
-
 ## Research Design
 
 &nbsp;&nbsp;&nbsp;&nbsp;This study employs a quantitative explanatory research design to investigate the determinants of video game commercial success based on global sales. The study utilizes the Video Game Sales dataset from Kaggle, comprising over 16,000 entries. Data pre-processing was conducted using R, which involved data imputation to address missing values and a 70/30 train-test split. This partitioning ensures that the predictive model is trained on 70% of the data and validated against a 30% hold-out set to assess its generalizability.
@@ -165,11 +152,19 @@ data_row_count <- nrow(dataset)
 &nbsp;&nbsp;&nbsp;The dataset utilized in this study was collected from Kaggle, named Video Game Sales with Ratings by Rush Kirubi from https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings. The following variables are chosen for the model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Get data from Kaggle using RKaggle
+url <- "rush4ratio/video-game-sales-with-ratings"
+dataset <- RKaggle::get_dataset(url) %>%
+        mutate(across(everything(), ~ ifelse(.x %in% c("", "NA", "N/A"), NA, .x)))
+
+# Get data row count
+data_row_count <- nrow(dataset)
+
 set.seed(5)
 
 # Drop all sales except global
 dataset <- cbind(dataset[,-c(6:10)],dataset$Global_Sales)
-dataset$Year_of_Release <- 2016 - dataset$Year_of_Release
+dataset$Year_of_Release <- 2016 - as.numeric(dataset$Year_of_Release)
 names(dataset)[3] <- "Game_Age"
 names(dataset)[12] <- "Global_Sales"
 
@@ -662,8 +657,10 @@ set.seed(5)
 
 # === DATA COLLECTION ===
 
-# Get data from Kaggle
-dataset <- read.csv("../Video_Games_Sales_as_at_22_Dec_2016.csv")
+# Get data from Kaggle using RKaggle
+url <- "rush4ratio/video-game-sales-with-ratings"
+dataset <- RKaggle::get_dataset(url) %>%
+        mutate(across(everything(), ~ ifelse(.x %in% c("", "NA", "N/A"), NA, .x)))
 
 # === DATA CLEANING ===
 
