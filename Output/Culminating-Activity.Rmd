@@ -40,7 +40,8 @@ set.seed(5)
 ```
 
 # Abstract
-Provide a concise summary of the study including purpose, methods, results, and conclusions (150–250 words).
+
+The rapid growth of the global video game industry makes accurate sales forecasting crucial for strategic development. This study investigates how different missing data imputation strategies and model transformation impact the predictive performance of Multiple Linear Regression models when forecasting global sales. Utilizing a dataset of over 16,000 games, a quantitative research design was employed. Data preprocessing involved handling missing values via Predictive Mean Matching (PMM) and applying a logarithmic transformation to address right-skewness. The findings revealed that while the untransformed multiple linear regression model was statistically significant ($F = 61.1118, p < 0.001$), it explained only 2.14% of the variance ($R^2 = 0.2143$) and severely violated the assumptions of normality and homoscedasticity due to extreme right-skewness. Applying a logarithmic transformation resolved the normality violation under the Kolmogorov-Smirnov test and increased the model's explanatory power to 3.02% ($R^2 = 0.3018$), proving that critic scores and game age are significant positive drivers of sales despite residual homoscedasticity remaining violated. Based on the findings and limitations, future research should explore alternative imputation methods, model transformations, and incorporate additional predictors.
 
 # Chapter 1: Introduction
 
@@ -135,7 +136,7 @@ knitr::include_graphics("Conceptual_Framework.png")
 
 ## Research Design
 
-&nbsp;&nbsp;&nbsp;&nbsp;This study employs a quantitative explanatory research design to investigate the determinants of video game commercial success based on global sales. The study utilizes the Video Game Sales dataset from Kaggle, comprising over 16,000 entries. Data pre-processing was conducted using R, which involved data imputation to address missing values and a 70/30 train-test split. This partitioning ensures that the predictive model is trained on 70% of the data and validated against a 30% hold-out set to assess its generalizability.
+&nbsp;&nbsp;&nbsp;&nbsp;This study employs a quantitative research design to investigate the determinants of video game commercial success based on global sales. The study utilizes the Video Game Sales dataset from Kaggle, comprising over 16,000 entries. Data pre-processing was conducted using R, which involved data imputation to address missing values and a 70/30 train-test split. This partitioning ensures that the predictive model is trained on 70% of the data and validated against a 30% hold-out set to assess its generalizability.
 
 &nbsp;&nbsp;&nbsp;&nbsp;The primary analytical framework is Multiple Linear Regression. To ensure the reliability of the regression coefficients and $p$-values, the model is evaluated against the four classical linear regression assumptions:
 
