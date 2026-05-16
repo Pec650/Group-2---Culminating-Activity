@@ -26,7 +26,7 @@ library(tidyr)      # Data reshaping
 library(stringr)    # String manipulation
 library(forcats)    # Handling categorical factors
 library(purrr)      # Functional programming
-library(mice)       # Bayesian Linear Regression imputation
+library(mice)       # Predictive Mean Matching (PMM) imputation
 library(caret)      # Data splitting and pre-processing
 library(car)        # Variance Inflation Factor (VIF)
 library(lmtest)     # Testing for heteroscedasticity (Breusch-Pagan-Godfrey)
@@ -41,7 +41,7 @@ set.seed(5)
 
 # Abstract
 
-The rapid growth of the global video game industry makes accurate sales forecasting crucial for strategic development. This study investigates how different missing data imputation strategies and model transformation impact the predictive performance of Multiple Linear Regression models when forecasting global sales. Utilizing a dataset of over 16,000 games, a quantitative research design was employed. Data preprocessing involved handling missing values via Predictive Mean Matching (PMM) and applying a logarithmic transformation to address right-skewness. The findings revealed that while the untransformed multiple linear regression model was statistically significant ($F = 61.1118, p < 0.001$), it explained only 2.14% of the variance ($R^2 = 0.2143$) and severely violated the assumptions of normality and homoscedasticity due to extreme right-skewness. Applying a logarithmic transformation resolved the normality violation under the Kolmogorov-Smirnov test and increased the model's explanatory power to 3.02% ($R^2 = 0.3018$), proving that critic scores and game age are significant positive drivers of sales despite residual homoscedasticity remaining violated. Based on the findings and limitations, future research should explore alternative imputation methods, model transformations, and incorporate additional predictors.
+The rapid growth of the global video game industry makes accurate sales forecasting crucial for strategic development. This study investigates how different missing data imputation strategies and model transformation impact the predictive performance of Multiple Linear Regression models when forecasting global sales. Utilizing a dataset of over 16,000 games, a quantitative research design was employed. Data preprocessing involved handling missing values via Predictive Mean Matching (PMM) and applying a logarithmic transformation to address right-skewness. The findings revealed that while the untransformed multiple linear regression model was statistically significant ($F = 61.1118, p < 0.001$), it explained 21.43% of the variance ($R^2 = 0.2143$) and severely violated the assumptions of normality and homoscedasticity due to extreme right-skewness. Applying a logarithmic transformation resolved the normality violation under the Kolmogorov-Smirnov test and increased the model's explanatory power to 30.18% ($R^2 = 0.3018$), proving that critic scores and game age are significant positive drivers of sales despite residual homoscedasticity remaining violated. Based on the findings and limitations, future research should explore alternative imputation methods, model transformations, and incorporate additional predictors.
 
 # Chapter 1: Introduction
 
@@ -84,7 +84,7 @@ The rapid growth of the global video game industry makes accurate sales forecast
 
 ## Scope and Limitations
 
-&nbsp;&nbsp;&nbsp;&nbsp;This research focuses on predicting global video game sales by comparing two data-handling methods which are deleting missing rows and using the Bayesian Linear Regression imputation. The analysis is specifically performed using Multiple Linear Regression within the R programming environment. The primary goal is to determine which data-handling technique leads to a more accurate and reliable prediction model.
+&nbsp;&nbsp;&nbsp;&nbsp;This research focuses on predicting global video game sales by comparing two data-handling methods which are deleting missing rows and using the Predictive Mean Matching (PMM) imputation. The analysis is specifically performed using Multiple Linear Regression within the R programming environment. The primary goal is to determine which data-handling technique leads to a more accurate and reliable prediction model.
 
 \newpage
 
@@ -144,7 +144,7 @@ knitr::include_graphics("Conceptual_Framework.png")
 
 2. Homoscedasticity - It is the spread of your residuals should be the same across all levels of your predicted values. This study utilizes the Breusch-Pagan-Godfrey test; a violation (heteroscedasticity) would suggest that the model’s standard errors are biased.
 
-3. Multicollinearity - This occurs when two or more of your independent variables are too highly correlated with each other. This study calculates the Variance Inflation Factor of each predictor to check if there are any high correlation between predictors.
+3. Multicollinearity - This occurs when two or more of your independent variables are too highly correlated with each other. This study calculates the Variance Inflation Factor of each predictor to check if there is high correlation between predictors.
 
 4. Independence - This assumes that the residual for one observation is not related to the residual of another. This study will utilize the Durbin-Watson test to check for autocorrelation.
 
@@ -195,7 +195,7 @@ knitr::kable(head(data_subset, 6),
 
 ## Data Imputation
 
-&nbsp;&nbsp;&nbsp;&nbsp;The dataset have missing values *(NA)*. To address the missing values, the dataset was imputed using a Predictive Mean Matching model.
+&nbsp;&nbsp;&nbsp;&nbsp;The dataset has missing values *(NA)*. To address the missing values, the dataset was imputed using a Predictive Mean Matching model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Predictive Mean Matching (PMM)
@@ -227,9 +227,9 @@ knitr::kable(head(data, 6),
 
 - **Game_Age**: Age of the game from year of release to the year 2016.
 
-- **Genre**: Game type (action, sports, exc.)
+- **Genre**: Game type (action, sports, etc.)
 
-- **Critic_Score** Aggregate score compiled by Metacritic staff.
+- **Critic_Score**: Aggregate score compiled by Metacritic staff.
 
 - **Critic_Count**: The number of critics used in coming up with the Criticscore.
 
@@ -568,7 +568,7 @@ kable(ks_test_result,
 
 ## Interpretation
 
-&nbsp;&nbsp;&nbsp;&nbsp;After the logarithmic transformation, the final regression analysis (Table 7) demonstrates that Critic Scores and Game Age are significant positive drivers of commercial success. Specifically, a single-point improvement in critic sentiment correlates with a `r critic_score_estimate`% increase in global sales, validating the industry’s reliance on high review scores for financial growth. Furthermore, the model reveals substantial variations across platforms and genres. While legacy platforms like the Game Boy and PlayStation 3 show strong historical sales volume, niche genres such as Strategy and Adventure tend to underperform in total sales compared to mainstream counterparts. Overall, the transformed model explains approximately `r round(transformed_r_squared * 10, 2)`% of the variance in sales (R² = `r round(transformed_r_squared, 4)`), which is an improvement from the untransformed model (R² = `r round(untransformed_r_squared, 4)`).
+&nbsp;&nbsp;&nbsp;&nbsp;After the logarithmic transformation, the final regression analysis (Table 7) demonstrates that Critic Scores and Game Age are significant positive drivers of commercial success. Specifically, a single-point improvement in critic sentiment correlates with a `r critic_score_estimate`% increase in global sales, validating the industry’s reliance on high review scores for financial growth. Furthermore, the model reveals substantial variations across platforms and genres. While legacy platforms like the Game Boy and PlayStation 3 show strong historical sales volume, niche genres such as Strategy and Adventure tend to underperform in total sales compared to mainstream counterparts. Overall, the transformed model explains approximately `r round(transformed_r_squared * 100, 2)`% of the variance in sales (R² = `r round(transformed_r_squared, 4)`), which is an improvement from the untransformed model (R² = `r round(untransformed_r_squared, 4)`).
 
 \newpage
 
@@ -580,7 +580,7 @@ kable(ks_test_result,
 
 &nbsp;&nbsp;&nbsp;&nbsp;The results confirmed that missing data, when left unaddressed, negatively impact the reliability of predictive models. After applying Predictive Mean Matching (PMM) imputation to handle missing values, the dataset was used to fit a Multiple Linear Regression model. The initial model was statistically significant (F = `r round(f_value[1], 4)`, p `r p_value`) and explained approximately `r round(untransformed_r_squared * 10, 2)`% of the variance in global sales (R² = `r round(untransformed_r_squared, 4)`). However, diagnostic testing revealed violations of normality and homoscedasticity, indicating that the raw model was insufficient for reliable inference.
 
-&nbsp;&nbsp;&nbsp;&nbsp;Following a logarithmic transformation of the dependent variable, model performance improved notably. The transformed model achieved an R² of `r round(transformed_r_squared, 4)`, explaining approximately `r round(transformed_r_squared * 10, 2)`% of the variance in global sales, and successfully passed the normality assumption under the Kolmogorov-Smirnov test. Key predictors of global sales included platform, game age, critic score, critic count, user score, user count, genre, and ESRB rating. Notably, critic score and game age were found to be significant positive drivers of commercial success, while genres such as Strategy, Puzzle, and Adventure were associated with lower global sales.
+&nbsp;&nbsp;&nbsp;&nbsp;Following a logarithmic transformation of the dependent variable, model performance improved notably. The transformed model achieved an R² of `r round(transformed_r_squared, 4)`, explaining approximately `r round(transformed_r_squared * 100, 2)`% of the variance in global sales, and successfully passed the normality assumption under the Kolmogorov-Smirnov test. Key predictors of global sales included platform, game age, critic score, critic count, user score, user count, genre, and ESRB rating. Notably, critic score and game age were found to be significant positive drivers of commercial success, while genres such as Strategy, Puzzle, and Adventure were associated with lower global sales.
 
 &nbsp;&nbsp;&nbsp;&nbsp;Overall, the findings affirm that proper missing value handling and data preprocessing are essential steps in building more accurate and reliable predictive models for global sales forecasting.
 
@@ -590,7 +590,7 @@ Based on the findings and limitations of this study, the following recommendatio
 
 - Explore Alternative Imputation Methods
 
-&nbsp;&nbsp;&nbsp;&nbsp;This study employed Predictive Mean Matching (PMM) as the imputation strategy for handling missing values. Future studies are encouraged to explore and compare other imputation techniques, such as Bayesian Linear Regression imputation, K-Nearest Neighbors (KNN) imputation, or Multiple Imputation by Chained Equations (MICE) with different method configurations. Comparing these approaches may yield further improvements in data quality and, consequently, in model predictive accuracy.
+&nbsp;&nbsp;&nbsp;&nbsp;This study employed Predictive Mean Matching (PMM) as the imputation strategy for handling missing values. Future studies are encouraged to explore and compare other imputation techniques, such as Predictive Mean Matching (PMM) imputation, K-Nearest Neighbors (KNN) imputation, or Multiple Imputation by Chained Equations (MICE) with different method configurations. Comparing these approaches may yield further improvements in data quality and, consequently, in model predictive accuracy.
 
 - Explore Alternative Model Transformations
 
